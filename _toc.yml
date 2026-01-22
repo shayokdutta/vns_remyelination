@@ -6,7 +6,7 @@ parts:
   - caption: Figures
     chapters:
       - file: figure1_VNSOligos
-        title: "Figure 1: Figure 1 VNS Enhances Oligodendrogenesis"
+        title: "Figure 1: VNS Enhances Oligodendrogenesis"
       - file: figure3_pairedVNSOligos
         title: "Figure 3: Success-Paired VNS Enhances Oligodendrogenesis"
       - file: figure6_Neuropixels
