@@ -2676,60 +2676,230 @@ Significant Windows found: [&#39;21.0-75.0&#39;]
 <span class="expanded">Hide code cell source</span>
 </summary>
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># --- PANEL H DATA (Post-Stimulation Rate) ---</span>
-<span class="n">data_h</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;Factor&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Group Effect (VNS vs Control)&quot;</span><span class="p">,</span> <span class="s2">&quot;Time Effect (Week)&quot;</span><span class="p">,</span> <span class="s2">&quot;Interaction (Group × Week)&quot;</span><span class="p">],</span>
-    <span class="s2">&quot;Metric&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;OL Replacement Rate (Post-Stimulation)&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span>
-    <span class="s2">&quot;Test&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Least Squares Regression Model&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span>
-    <span class="s2">&quot;P-Value&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;0.0194 (*)&quot;</span><span class="p">,</span> <span class="s2">&quot;0.0006 (***)&quot;</span><span class="p">,</span> <span class="s2">&quot;0.2048 (n.s.)&quot;</span><span class="p">],</span>
-    <span class="s2">&quot;Conclusion&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;VNS accelerates repair rate&quot;</span><span class="p">,</span> <span class="s2">&quot;Rate decreases over time naturally&quot;</span><span class="p">,</span> <span class="s2">&quot;Parallel decline (no interaction)&quot;</span><span class="p">]</span>
-<span class="p">}</span>
-<span class="n">df_h</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data_h</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">display</span><span class="p">,</span> <span class="n">HTML</span>
 
-<span class="c1"># Display</span>
-<span class="n">pretty_print_stats</span><span class="p">(</span><span class="n">df_h</span><span class="p">,</span> <span class="s2">&quot;--- Panel H Statistics: Sustained Acceleration of Repair ---&quot;</span><span class="p">)</span>
+<span class="c1"># Formatting function for clear headers</span>
+<span class="k">def</span> <span class="nf">pretty_print_stats</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">title</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># Apply styling to highlight significant p-values</span>
+    <span class="k">def</span> <span class="nf">highlight_sig</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="s1">&#39;*&#39;</span> <span class="ow">in</span> <span class="n">val</span> <span class="ow">or</span> <span class="s1">&#39;&lt;&#39;</span> <span class="ow">in</span> <span class="n">val</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s1">&#39;background-color: #d4edda; font-weight: bold;&#39;</span> <span class="c1"># Light green for sig</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span>
+
+    <span class="n">styled_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">applymap</span><span class="p">(</span><span class="n">highlight_sig</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;P-Value&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">set_table_styles</span><span class="p">(</span>
+        <span class="p">[{</span><span class="s1">&#39;selector&#39;</span><span class="p">:</span> <span class="s1">&#39;th&#39;</span><span class="p">,</span> <span class="s1">&#39;props&#39;</span><span class="p">:</span> <span class="p">[(</span><span class="s1">&#39;text-align&#39;</span><span class="p">,</span> <span class="s1">&#39;left&#39;</span><span class="p">)]}]</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">hide</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">)</span>
+    
+    <span class="n">display</span><span class="p">(</span><span class="n">HTML</span><span class="p">(</span><span class="n">styled_df</span><span class="o">.</span><span class="n">to_html</span><span class="p">(</span><span class="n">classes</span><span class="o">=</span><span class="s1">&#39;table table-striped table-hover&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)))</span>
+
+<span class="c1"># --- TABLE 1: MAIN MODEL EFFECTS (Least Squares - JMP) ---</span>
+<span class="n">data_main</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;Factor&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Overall Model (F-Test)&quot;</span><span class="p">,</span> <span class="s2">&quot;Group Effect (VNS vs Unstimulated)&quot;</span><span class="p">,</span> <span class="s2">&quot;Time Effect (Week)&quot;</span><span class="p">,</span> <span class="s2">&quot;Interaction (Group × Week)&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;Statistic&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;F(5,27)=5.6205&quot;</span><span class="p">,</span> <span class="s2">&quot;F=6.1829&quot;</span><span class="p">,</span> <span class="s2">&quot;F=9.8543&quot;</span><span class="p">,</span> <span class="s2">&quot;F=1.6824&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;P-Value&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;0.0011 (**)&quot;</span><span class="p">,</span> <span class="s2">&quot;0.0194 (*)&quot;</span><span class="p">,</span> <span class="s2">&quot;0.0006 (***)&quot;</span><span class="p">,</span> <span class="s2">&quot;0.2048 (n.s.)&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;Conclusion&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Model explains significant variance&quot;</span><span class="p">,</span> <span class="s2">&quot;VNS accelerates repair rate&quot;</span><span class="p">,</span> <span class="s2">&quot;Rate decreases over time&quot;</span><span class="p">,</span> <span class="s2">&quot;Parallel decline (no interaction)&quot;</span><span class="p">]</span>
+<span class="p">}</span>
+<span class="n">df_main</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data_main</span><span class="p">)</span>
+
+<span class="c1"># --- TABLE 2: TUKEY&#39;S HSD POST-HOC (Week-by-Week) ---</span>
+<span class="n">data_posthoc</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;Comparison&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;Unstim W1 vs Unstim W2&quot;</span><span class="p">,</span> <span class="s2">&quot;Unstim W1 vs Unstim W3&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Unstim W1 vs VNS W1&quot;</span><span class="p">,</span> <span class="s2">&quot;Unstim W1 vs VNS W2&quot;</span><span class="p">,</span> <span class="s2">&quot;Unstim W1 vs VNS W3&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Unstim W2 vs Unstim W3&quot;</span><span class="p">,</span> <span class="s2">&quot;Unstim W2 vs VNS W1&quot;</span><span class="p">,</span> <span class="s2">&quot;Unstim W2 vs VNS W2&quot;</span><span class="p">,</span> <span class="s2">&quot;Unstim W2 vs VNS W3&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Unstim W3 vs VNS W1&quot;</span><span class="p">,</span> <span class="s2">&quot;Unstim W3 vs VNS W2&quot;</span><span class="p">,</span> <span class="s2">&quot;Unstim W3 vs VNS W3&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;VNS W1 vs VNS W2&quot;</span><span class="p">,</span> <span class="s2">&quot;VNS W1 vs VNS W3&quot;</span><span class="p">,</span> <span class="s2">&quot;VNS W2 vs VNS W3&quot;</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;P-Value&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;0.4273 (n.s.)&quot;</span><span class="p">,</span> <span class="s2">&quot;0.4674 (n.s.)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;0.1349 (n.s.)&quot;</span><span class="p">,</span> <span class="s2">&quot;1.0000 (n.s.)&quot;</span><span class="p">,</span> <span class="s2">&quot;0.5377 (n.s.)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;1.0000 (n.s.)&quot;</span><span class="p">,</span> <span class="s2">&quot;0.0019 (**)&quot;</span><span class="p">,</span> <span class="s2">&quot;0.5508 (n.s.)&quot;</span><span class="p">,</span> <span class="s2">&quot;1.0000 (n.s.)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;0.0023 (**)&quot;</span><span class="p">,</span> <span class="s2">&quot;0.5914 (n.s.)&quot;</span><span class="p">,</span> <span class="s2">&quot;1.0000 (n.s.)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;0.1344 (n.s.)&quot;</span><span class="p">,</span> <span class="s2">&quot;0.0040 (**)&quot;</span><span class="p">,</span> <span class="s2">&quot;0.6524 (n.s.)&quot;</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;Inference&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;Stable baseline&quot;</span><span class="p">,</span> <span class="s2">&quot;Stable baseline&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;VNS trending higher (but n.s.)&quot;</span><span class="p">,</span> <span class="s2">&quot;Equivalent rates&quot;</span><span class="p">,</span> <span class="s2">&quot;Equivalent rates&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Stable low rate&quot;</span><span class="p">,</span> <span class="s2">&quot;VNS W1 significantly higher&quot;</span><span class="p">,</span> <span class="s2">&quot;Rates similar&quot;</span><span class="p">,</span> <span class="s2">&quot;Rates similar&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;VNS W1 significantly higher&quot;</span><span class="p">,</span> <span class="s2">&quot;Rates similar&quot;</span><span class="p">,</span> <span class="s2">&quot;Rates similar&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;VNS rate declining&quot;</span><span class="p">,</span> <span class="s2">&quot;Significant drop by W3&quot;</span><span class="p">,</span> <span class="s2">&quot;Stable post-stimulation&quot;</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+<span class="n">df_posthoc</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data_posthoc</span><span class="p">)</span>
+
+<span class="c1"># Display both tables</span>
+<span class="n">pretty_print_stats</span><span class="p">(</span><span class="n">df_main</span><span class="p">,</span> <span class="s2">&quot;--- Panel H1: Main Model Effects (Least Squares Full Factorial) ---&quot;</span><span class="p">)</span>
+<span class="n">pretty_print_stats</span><span class="p">(</span><span class="n">df_posthoc</span><span class="p">,</span> <span class="s2">&quot;--- Panel H2: Granular Week-by-Week Comparisons (Tukey&#39;s HSD) ---&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 </details>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>--- Panel H Statistics: Sustained Acceleration of Repair ---
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>--- Panel H1: Main Model Effects (Least Squares Full Factorial) ---
 </pre></div>
 </div>
-<div class="output text_html"><table border="1" class="dataframe table table-striped table-hover">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/tmp/ipykernel_93241/1300472315.py:13: FutureWarning: Styler.applymap has been deprecated. Use Styler.map instead.
+  styled_df = df.style.applymap(highlight_sig, subset=[&#39;P-Value&#39;]).set_table_styles(
+</pre></div>
+</div>
+<div class="output text_html"><style type="text/css">
+#T_f6d15 th {
+  text-align: left;
+}
+#T_f6d15_row0_col2, #T_f6d15_row1_col2, #T_f6d15_row2_col2 {
+  background-color: #d4edda;
+  font-weight: bold;
+}
+</style>
+<table id="T_f6d15">
   <thead>
-    <tr style="text-align: left;">
-      <th>Factor</th>
-      <th>Metric</th>
-      <th>Test</th>
-      <th>P-Value</th>
-      <th>Conclusion</th>
+    <tr>
+      <th id="T_f6d15_level0_col0" class="col_heading level0 col0" >Factor</th>
+      <th id="T_f6d15_level0_col1" class="col_heading level0 col1" >Statistic</th>
+      <th id="T_f6d15_level0_col2" class="col_heading level0 col2" >P-Value</th>
+      <th id="T_f6d15_level0_col3" class="col_heading level0 col3" >Conclusion</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>Group Effect (VNS vs Control)</td>
-      <td>OL Replacement Rate (Post-Stimulation)</td>
-      <td>Least Squares Regression Model</td>
-      <td>0.0194 (*)</td>
-      <td>VNS accelerates repair rate</td>
+      <td id="T_f6d15_row0_col0" class="data row0 col0" >Overall Model (F-Test)</td>
+      <td id="T_f6d15_row0_col1" class="data row0 col1" >F(5,27)=5.6205</td>
+      <td id="T_f6d15_row0_col2" class="data row0 col2" >0.0011 (**)</td>
+      <td id="T_f6d15_row0_col3" class="data row0 col3" >Model explains significant variance</td>
     </tr>
     <tr>
-      <td>Time Effect (Week)</td>
-      <td>OL Replacement Rate (Post-Stimulation)</td>
-      <td>Least Squares Regression Model</td>
-      <td>0.0006 (***)</td>
-      <td>Rate decreases over time naturally</td>
+      <td id="T_f6d15_row1_col0" class="data row1 col0" >Group Effect (VNS vs Unstimulated)</td>
+      <td id="T_f6d15_row1_col1" class="data row1 col1" >F=6.1829</td>
+      <td id="T_f6d15_row1_col2" class="data row1 col2" >0.0194 (*)</td>
+      <td id="T_f6d15_row1_col3" class="data row1 col3" >VNS accelerates repair rate</td>
     </tr>
     <tr>
-      <td>Interaction (Group × Week)</td>
-      <td>OL Replacement Rate (Post-Stimulation)</td>
-      <td>Least Squares Regression Model</td>
-      <td>0.2048 (n.s.)</td>
-      <td>Parallel decline (no interaction)</td>
+      <td id="T_f6d15_row2_col0" class="data row2 col0" >Time Effect (Week)</td>
+      <td id="T_f6d15_row2_col1" class="data row2 col1" >F=9.8543</td>
+      <td id="T_f6d15_row2_col2" class="data row2 col2" >0.0006 (***)</td>
+      <td id="T_f6d15_row2_col3" class="data row2 col3" >Rate decreases over time</td>
+    </tr>
+    <tr>
+      <td id="T_f6d15_row3_col0" class="data row3 col0" >Interaction (Group × Week)</td>
+      <td id="T_f6d15_row3_col1" class="data row3 col1" >F=1.6824</td>
+      <td id="T_f6d15_row3_col2" class="data row3 col2" >0.2048 (n.s.)</td>
+      <td id="T_f6d15_row3_col3" class="data row3 col3" >Parallel decline (no interaction)</td>
     </tr>
   </tbody>
-</table></div></div>
+</table>
+</div><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>--- Panel H2: Granular Week-by-Week Comparisons (Tukey&#39;s HSD) ---
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/tmp/ipykernel_93241/1300472315.py:13: FutureWarning: Styler.applymap has been deprecated. Use Styler.map instead.
+  styled_df = df.style.applymap(highlight_sig, subset=[&#39;P-Value&#39;]).set_table_styles(
+</pre></div>
+</div>
+<div class="output text_html"><style type="text/css">
+#T_355fb th {
+  text-align: left;
+}
+#T_355fb_row6_col1, #T_355fb_row9_col1, #T_355fb_row13_col1 {
+  background-color: #d4edda;
+  font-weight: bold;
+}
+</style>
+<table id="T_355fb">
+  <thead>
+    <tr>
+      <th id="T_355fb_level0_col0" class="col_heading level0 col0" >Comparison</th>
+      <th id="T_355fb_level0_col1" class="col_heading level0 col1" >P-Value</th>
+      <th id="T_355fb_level0_col2" class="col_heading level0 col2" >Inference</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td id="T_355fb_row0_col0" class="data row0 col0" >Unstim W1 vs Unstim W2</td>
+      <td id="T_355fb_row0_col1" class="data row0 col1" >0.4273 (n.s.)</td>
+      <td id="T_355fb_row0_col2" class="data row0 col2" >Stable baseline</td>
+    </tr>
+    <tr>
+      <td id="T_355fb_row1_col0" class="data row1 col0" >Unstim W1 vs Unstim W3</td>
+      <td id="T_355fb_row1_col1" class="data row1 col1" >0.4674 (n.s.)</td>
+      <td id="T_355fb_row1_col2" class="data row1 col2" >Stable baseline</td>
+    </tr>
+    <tr>
+      <td id="T_355fb_row2_col0" class="data row2 col0" >Unstim W1 vs VNS W1</td>
+      <td id="T_355fb_row2_col1" class="data row2 col1" >0.1349 (n.s.)</td>
+      <td id="T_355fb_row2_col2" class="data row2 col2" >VNS trending higher (but n.s.)</td>
+    </tr>
+    <tr>
+      <td id="T_355fb_row3_col0" class="data row3 col0" >Unstim W1 vs VNS W2</td>
+      <td id="T_355fb_row3_col1" class="data row3 col1" >1.0000 (n.s.)</td>
+      <td id="T_355fb_row3_col2" class="data row3 col2" >Equivalent rates</td>
+    </tr>
+    <tr>
+      <td id="T_355fb_row4_col0" class="data row4 col0" >Unstim W1 vs VNS W3</td>
+      <td id="T_355fb_row4_col1" class="data row4 col1" >0.5377 (n.s.)</td>
+      <td id="T_355fb_row4_col2" class="data row4 col2" >Equivalent rates</td>
+    </tr>
+    <tr>
+      <td id="T_355fb_row5_col0" class="data row5 col0" >Unstim W2 vs Unstim W3</td>
+      <td id="T_355fb_row5_col1" class="data row5 col1" >1.0000 (n.s.)</td>
+      <td id="T_355fb_row5_col2" class="data row5 col2" >Stable low rate</td>
+    </tr>
+    <tr>
+      <td id="T_355fb_row6_col0" class="data row6 col0" >Unstim W2 vs VNS W1</td>
+      <td id="T_355fb_row6_col1" class="data row6 col1" >0.0019 (**)</td>
+      <td id="T_355fb_row6_col2" class="data row6 col2" >VNS W1 significantly higher</td>
+    </tr>
+    <tr>
+      <td id="T_355fb_row7_col0" class="data row7 col0" >Unstim W2 vs VNS W2</td>
+      <td id="T_355fb_row7_col1" class="data row7 col1" >0.5508 (n.s.)</td>
+      <td id="T_355fb_row7_col2" class="data row7 col2" >Rates similar</td>
+    </tr>
+    <tr>
+      <td id="T_355fb_row8_col0" class="data row8 col0" >Unstim W2 vs VNS W3</td>
+      <td id="T_355fb_row8_col1" class="data row8 col1" >1.0000 (n.s.)</td>
+      <td id="T_355fb_row8_col2" class="data row8 col2" >Rates similar</td>
+    </tr>
+    <tr>
+      <td id="T_355fb_row9_col0" class="data row9 col0" >Unstim W3 vs VNS W1</td>
+      <td id="T_355fb_row9_col1" class="data row9 col1" >0.0023 (**)</td>
+      <td id="T_355fb_row9_col2" class="data row9 col2" >VNS W1 significantly higher</td>
+    </tr>
+    <tr>
+      <td id="T_355fb_row10_col0" class="data row10 col0" >Unstim W3 vs VNS W2</td>
+      <td id="T_355fb_row10_col1" class="data row10 col1" >0.5914 (n.s.)</td>
+      <td id="T_355fb_row10_col2" class="data row10 col2" >Rates similar</td>
+    </tr>
+    <tr>
+      <td id="T_355fb_row11_col0" class="data row11 col0" >Unstim W3 vs VNS W3</td>
+      <td id="T_355fb_row11_col1" class="data row11 col1" >1.0000 (n.s.)</td>
+      <td id="T_355fb_row11_col2" class="data row11 col2" >Rates similar</td>
+    </tr>
+    <tr>
+      <td id="T_355fb_row12_col0" class="data row12 col0" >VNS W1 vs VNS W2</td>
+      <td id="T_355fb_row12_col1" class="data row12 col1" >0.1344 (n.s.)</td>
+      <td id="T_355fb_row12_col2" class="data row12 col2" >VNS rate declining</td>
+    </tr>
+    <tr>
+      <td id="T_355fb_row13_col0" class="data row13 col0" >VNS W1 vs VNS W3</td>
+      <td id="T_355fb_row13_col1" class="data row13 col1" >0.0040 (**)</td>
+      <td id="T_355fb_row13_col2" class="data row13 col2" >Significant drop by W3</td>
+    </tr>
+    <tr>
+      <td id="T_355fb_row14_col0" class="data row14 col0" >VNS W2 vs VNS W3</td>
+      <td id="T_355fb_row14_col1" class="data row14 col1" >0.6524 (n.s.)</td>
+      <td id="T_355fb_row14_col2" class="data row14 col2" >Stable post-stimulation</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="alert alert-block alert-info">
+    <b>Data Transparency: The Temporal Window of Action</b><br>
+    The granular post-hoc analysis (Table H2) clarifies that the "Group Effect" is primarily driven by the immediate post-stimulation window:
+    <ul>
+        <li><b>The Critical Week:</b> VNS Week 1 is the only timepoint that significantly diverges from the control baselines (<i>p = 0.0019</i> vs Unstim W2; <i>p = 0.0023</i> vs Unstim W3).</li>
+        <li><b>Convergence:</b> By Week 2 and 3, the rates between VNS and Unstimulated groups become statistically indistinguishable (<i>p = 1.0000</i> for many late comparisons), confirming that the therapeutic acceleration is transient and concentrated in the early recovery phase.</li>
+    </ul>
 </div>
 <div class="alert alert-block alert-success">
     <b>Statistical Insight: VNS Accelerates the Kinetics of Repair</b><br>
