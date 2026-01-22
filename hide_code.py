@@ -1,7 +1,7 @@
 import nbformat as nbf
 
 # List of your notebook filenames
-notebook_filenames = ["figure6_Neuropixels.ipynb", "figure7_longtermMyelin.ipynb"]
+notebook_filenames = ["figure1_VNSOligos.ipynb","figure3_pairedVNSOligos.ipynb","figure6_Neuropixels.ipynb", "figure7_longtermMyelin.ipynb"]
 
 # Loop through each filename in the list
 for filename in notebook_filenames:

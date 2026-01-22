@@ -15,8 +15,10 @@
 ---
 
 ## Data & Code Availability
-This digital book contains the interactive code and analysis used to generate the electrophysiology figures for this manuscript.
+This digital book contains the and analysis used to generate the electrophysiology figures for this manuscript.
 
 ### Figure Overview
+* **[Figure 1](figure1_VNSOligos.ipynb)**: VNS Enhances Oligodendrogenesis
+* **[Figure 3](figure3_pairedVNSOligos.ipynb)**: Success-Paired VNS Enhances Oligodendrogenesis
 * **[Figure 6](figure6_Neuropixels.ipynb)**: Electrophysiology Analysis
 * **[Figure 7](figure7_longtermMyelin.ipynb)**: Myelin-Dependent Long-Term Motor Recovery 
