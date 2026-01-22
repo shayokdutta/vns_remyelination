@@ -1,0 +1,21 @@
+# Book settings
+title: "VNS Myelin Manuscript Book"
+author: "Shayok 'Shay' Dutta, PhD"
+copyright: "2026"
+logo: ""  # You can add a path to a logo image here later if you want
+
+# Execution settings
+execute:
+  execute_notebooks: off
+
+# HTML settings
+html:
+  use_issues_button: false
+  use_repository_button: false
+  use_edit_page_button: false
+  show_navbar_depth: 1
+
+sphinx:
+  config:
+    html_static_path: ["_static"]
+    html_css_files: ["custom.css"]

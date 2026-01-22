@@ -1,0 +1,11 @@
+# _toc.yml
+format: jb-book
+root: intro
+
+parts:
+  - caption: Figures
+    chapters:
+      - file: figure6_Neuropixels
+        title: "Figure 6: Neuropixels"
+      - file: figure7_longtermMyelin
+        title: "Figure 7: Myelin-Dependent Long-Term Recovery"
