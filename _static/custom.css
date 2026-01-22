@@ -1,0 +1,29 @@
+/* _static/custom.css */
+
+/* Force the Back to Top button to always be visible */
+button.top-of-page-button {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    
+    /* Fix it to the bottom right */
+    position: fixed !important;
+    bottom: 2rem !important;
+    right: 2rem !important;
+    
+    /* Ensure it floats above everything else (including footers) */
+    z-index: 9999 !important;
+    
+    /* Optional: Style it to look nice */
+    background-color: #f5f5f5; /* Light grey background */
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Optional: Add a hover effect */
+button.top-of-page-button:hover {
+    background-color: #e0e0e0;
+}
