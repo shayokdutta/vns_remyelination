@@ -8,6 +8,12 @@ logo: ""  # You can add a path to a logo image here later if you want
 execute:
   execute_notebooks: off
 
+# Exclusions
+exclude_patterns:
+- ".virtual_documents/*"
+- "**/.virtual_documents/*"
+- "**.ipynb_checkpoints"
+
 # HTML settings
 html:
   use_issues_button: false
