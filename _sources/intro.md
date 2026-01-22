@@ -15,7 +15,7 @@
 ---
 
 ## Data & Code Availability
-This digital book contains the and analysis used to generate the electrophysiology figures for this manuscript.
+This digital book contains the and analysis used to generate the figures for this manuscript along with commentary and discussions and some supplemental analysis.
 
 ### Figure Overview
 * **[Figure 1](figure1_VNSOligos.ipynb)**: VNS Enhances Oligodendrogenesis
