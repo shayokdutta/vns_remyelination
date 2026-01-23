@@ -19,6 +19,7 @@ This digital book contains the and analysis used to generate the figures for thi
 
 ### Figure Overview
 * **[Figure 1](figure1_VNSOligos.ipynb)**: VNS Enhances Oligodendrogenesis
+* **[Figure 2](figure2_VNSSheathChanges.ipynb)**: VNS Neither Influences Sheath Replacement nor Pattern
 * **[Figure 3](figure3_pairedVNSOligos.ipynb)**: Success-Paired VNS Enhances Oligodendrogenesis
 * **[Figure 6](figure6_Neuropixels.ipynb)**: Electrophysiology Analysis
 * **[Figure 7](figure7_longtermMyelin.ipynb)**: Myelin-Dependent Long-Term Motor Recovery 
