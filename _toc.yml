@@ -13,6 +13,8 @@ parts:
         title: "Figure 3: Success-Paired VNS Enhances Oligodendrogenesis"
       - file: figure4_myelinPatternRestoration
         title: "Figure 4: Paired VNS Restores Native Myelin Pattern"
+      - file: figure5_functionalRecovery
+        title: "Figure 5: Paired VNS Improves Functional Recovery After Demyelination"
       - file: figure6_Neuropixels
         title: "Figure 6: Neuropixels"
       - file: figure7_longtermMyelin

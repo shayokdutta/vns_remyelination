@@ -5,6 +5,7 @@ notebook_filenames = ["figure1_VNSOligos.ipynb",\
 "figure2_VNSSheathChanges.ipynb",\
 "figure3_pairedVNSOligos.ipynb",\
 "figure4_myelinPatternRestoration.ipynb",\
+"figure5_functionalRecovery.ipynb",\
 "figure6_Neuropixels.ipynb",\
 "figure7_longtermMyelin.ipynb"]
 
