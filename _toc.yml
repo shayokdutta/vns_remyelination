@@ -11,6 +11,8 @@ parts:
         title: "Figure 2: VNS Alone Does Not Affect Sheath Replacement/Patterns"
       - file: figure3_pairedVNSOligos
         title: "Figure 3: Success-Paired VNS Enhances Oligodendrogenesis"
+      - file: figure4_myelinPatternRestoration
+        title: "Figure 4: Paired VNS Restores Native Myelin Pattern"
       - file: figure6_Neuropixels
         title: "Figure 6: Neuropixels"
       - file: figure7_longtermMyelin
