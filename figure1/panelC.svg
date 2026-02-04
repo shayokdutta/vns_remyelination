@@ -7,7 +7,8 @@
    width="675.88721"
    height="433.53503"
    viewBox="0 0 675.88721 433.53503"
-   sodipodi:docname="2026-01-20 all figures CM.pdf"
+   sodipodi:docname="panelC.svg"
+   inkscape:version="1.4.3 (1:1.4.3+202512261034+0d15f75042)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -74,7 +75,16 @@
      inkscape:pageopacity="0.0"
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
-     showgrid="false" />
+     showgrid="false"
+     inkscape:zoom="0.34496194"
+     inkscape:cx="-60.876282"
+     inkscape:cy="98.561599"
+     inkscape:window-width="1920"
+     inkscape:window-height="1048"
+     inkscape:window-x="1920"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g8" />
   <g
      id="g8"
      inkscape:groupmode="layer"
@@ -374,13 +384,9 @@
        transform="matrix(1,0,0,-1,33.4419,15.1484)"
        style="font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;font-family:Arial;-inkscape-font-specification:ArialMT;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
        id="text4624"><tspan
-         x="0 7.3319998 9.9960003 16.667999 23.34 27.336 34.007999 37.344002 44.015999 47.352001 50.688 58.692001 67.356003 75.360001 78.695999 85.367996 92.040001 98.711998 105.384 112.056 118.056 124.728 130.728 134.064 140.73599 143.39999 146.064 152.73599 159.408 166.08 172.752 179.424 186.09599 190.092 196.76401 203.436 210.108 216.78 223.452 229.452 232.116 238.116 241.452 248.12399 251.46001 254.79601 261.46799 265.46399 268.79999 274.79999 281.47198 288.14401 292.14001 294.80399 300.80399 307.47601 314.19241 320.86441 324.86041 334.85641 341.52841 348.20041 350.86441 357.53641 360.87241 367.5444 374.2164 377.5524 384.2244 390.89639 400.8924 406.8924 413.56439 416.22839 418.8924 425.56439 432.23639 435.57239 438.23639 444.90839 451.58041 454.91641"
-         y="0"
          sodipodi:role="line"
-         id="tspan4620">Figure 1. VNS enhances oligodendrogenesis after cuprizone-mediated demyelination. </tspan><tspan
-         x="510.40799 519.07202 525.74402 532.41602 539.08801 545.76001 549.09601 555.76801 559.104 562.44 569.112 571.776 575.112 581.784 588.45599 595.12799 0 7.3319998 9.9960003 16.667999 23.34 27.336 34.007999 37.344002 44.015999"
-         y="-814.90802"
-         sodipodi:role="line"
-         id="tspan4622">Huang et al 2025Figure 1 </tspan></text>
+         id="tspan4622"
+         x="0"
+         y="0" /></text>
   </g>
 </svg>
