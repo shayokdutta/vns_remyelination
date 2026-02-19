@@ -17,12 +17,12 @@
 ## Data & Code Availability
 This digital book contains the data and analysis used to generate the figures for this manuscript along with commentary and discussions and some supplemental analysis.
 ### Data Repository
-Large datasets, including raw Neuropixels recordings, are hosted on **Figshare** to ensure long-term accessibility and citable DOIs.
+Large datasets, including Neuropixels spiking data, are hosted on **Figshare** to ensure long-term accessibility and citable DOIs.
 | Dataset | Description | DOI / Link |
 | :--- | :--- | :--- |
 | **Fig 1 VNS Alone** | VNS alone and no stimulation control animal all processed imaging data. | [View on GitHub](https://github.com/shayokdutta/vns_remyelination/blob/main/Data/Fig1-2025-09-30.csv) |
 | **Fig 3 Paired VNS** | Paired VNS and motor learning animal all processed imaging data. | [View on GitHub](https://github.com/shayokdutta/vns_remyelination/blob/main/Data/Fig3-2025-09-30.csv) |
-| **Neuropixels Electrophysiology** | Processed spiking data ran through zeta program and stored as dataframe along with behavioral data associated during ephys recording stored in pandas data frames (500 MB) | [10.6084/m9.figshare.31366603](https://figshare.com/articles/dataset/Paired_VNS_Remyelination_Electrophysiology_Behavior_Data/31366603)  
+| **Fig 6 Electrophysiology** | Processed spiking data ran through zeta program and stored as dataframe along with behavioral data associated during ephys recording stored in pandas data frames (500 MB) | [10.6084/m9.figshare.31366603](https://figshare.com/articles/dataset/Paired_VNS_Remyelination_Electrophysiology_Behavior_Data/31366603)  
 
 ### Figure Overview
 * **[Figure 1](figure1_VNSOligos.ipynb)**: VNS Enhances Oligodendrogenesis
