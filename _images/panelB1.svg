@@ -7,7 +7,8 @@
    width="391.48575"
    height="129.34378"
    viewBox="0 0 391.48575 129.34378"
-   sodipodi:docname="2026-01-20 all figures CM.pdf"
+   sodipodi:docname="panelB.svg"
+   inkscape:version="1.4.3 (1:1.4.3+202512261034+0d15f75042)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -171,7 +172,16 @@
      inkscape:pageopacity="0.0"
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
-     showgrid="false" />
+     showgrid="false"
+     inkscape:zoom="3.1951914"
+     inkscape:cx="137.23748"
+     inkscape:cy="102.96723"
+     inkscape:window-width="1920"
+     inkscape:window-height="1048"
+     inkscape:window-x="1920"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g8" />
   <g
      id="g8"
      inkscape:groupmode="layer"
@@ -717,13 +727,9 @@
        transform="matrix(1,0,0,-1,33.4424,15.1484)"
        style="font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;font-family:Arial;-inkscape-font-specification:ArialMT;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
        id="text5882"><tspan
-         x="0 7.3319998 9.9960003 16.667999 23.34 27.336 34.007999 37.344002 44.015999 47.352001 50.688 58.692001 65.363998 68.028 72.024002 74.688004 81.360001 88.031998 91.367996 99.372002 108.036 116.04 119.376 128.03999 130.70399 134.03999 140.71201 144.048 150.048 156.72 162.72 168.72 175.392 181.392 187.392 190.728 197.39999 200.064 203.39999 209.39999 215.39999 218.064 220.728 223.392 230.064 236.73599 240.07201 244.06799 250.74001 257.41199 263.41199 270.08401 272.74799 279.42001 286.09201 289.42801 296.10001 302.772 309.444 316.15439 322.82639 328.82639 335.49841 341.49841 344.83441 351.50641 354.17041 356.83441 363.50641 370.17841 376.8504 383.5224 390.1944 396.86639 400.8624 407.53439 414.20639 420.87839 427.55042 434.22241 440.22241 442.88641 448.88641 452.22241"
-         y="0"
          sodipodi:role="line"
-         id="tspan5878">Figure 3. Pairing VNS with successful skilled reaching enhances oligodendrogenesis. </tspan><tspan
-         x="510.40799 519.07202 525.74402 532.41602 539.08801 545.76001 549.09601 555.76801 559.104 562.44 569.112 571.776 575.112 581.784 588.45599 595.12799 0 7.3319998 9.9960003 16.667999 23.34 27.336 34.007999 37.344002 44.015999"
-         y="-814.90802"
-         sodipodi:role="line"
-         id="tspan5880">Huang et al 2025Figure 3 </tspan></text>
+         id="tspan5880"
+         x="0"
+         y="0" /></text>
   </g>
 </svg>

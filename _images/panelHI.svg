@@ -7,10 +7,11 @@
    width="493.24875"
    height="236.95905"
    viewBox="0 0 493.24875 236.95905"
-   sodipodi:docname="2026-01-13 all figures CM.pdf"
+   sodipodi:docname="panelHI.svg"
    inkscape:export-filename="fig5.pdf"
    inkscape:export-xdpi="96"
    inkscape:export-ydpi="96"
+   inkscape:version="1.4.3 (1:1.4.3+202512261034+0d15f75042)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -25,7 +26,16 @@
      inkscape:showpageshadow="2"
      inkscape:pageopacity="0.0"
      inkscape:pagecheckerboard="0"
-     inkscape:deskcolor="#d1d1d1">
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.2622695"
+     inkscape:cx="207.16654"
+     inkscape:cy="125.96359"
+     inkscape:window-width="1920"
+     inkscape:window-height="1048"
+     inkscape:window-x="1920"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer-MC10">
     <inkscape:page
        x="0"
        y="0"
@@ -652,18 +662,5 @@
          style="fill:none;stroke:#0a60ff;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3;stroke-dasharray:none;stroke-opacity:1"
          transform="matrix(1.3333333,0,0,-1.3333333,423.76187,682.80187)" />
     </g>
-    <text
-       id="text845"
-       xml:space="preserve"
-       transform="matrix(1.3333333,0,0,1.3333333,44.590533,1111.3928)"><tspan
-         id="tspan845"
-         style="font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;font-family:Arial;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
-         x="0"
-         y="0">Figure 5. Paired VNS improves functional recovery after demyelination. </tspan><tspan
-         id="tspan846"
-         style="font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;font-family:Arial;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
-         x="510.396"
-         dx="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -601.79999"
-         y="-814.90802">Huang et al 2025Figure 5 </tspan></text>
   </g>
 </svg>
