@@ -16,6 +16,11 @@
 
 ## Data & Code Availability
 This digital book contains the and analysis used to generate the figures for this manuscript along with commentary and discussions and some supplemental analysis.
+### Data Repository
+Large datasets, including raw Neuropixels recordings, are hosted on **Figshare** to ensure long-term accessibility and citable DOIs.
+| Dataset | Description | DOI / Link |
+| :--- | :--- | :--- |
+| **Neuropixels Electrophysiology** | Processed spiking data ran through zeta program and stored as dataframe along with behavioral data associated during ephys recording stored in pandas data frames (500 MB) | [10.6084/m9.figshare.31366603](https://figshare.com/articles/dataset/Paired_VNS_Remyelination_Electrophysiology_Behavior_Data/31366603)  
 
 ### Figure Overview
 * **[Figure 1](figure1_VNSOligos.ipynb)**: VNS Enhances Oligodendrogenesis
@@ -25,3 +30,5 @@ This digital book contains the and analysis used to generate the figures for thi
 * **[Figure 4](figure4_myelinPatternRestoration.ipynb)**: Paired VNS Restores Native Myelin Pattern
 * **[Figure 6](figure6_Neuropixels.ipynb)**: Electrophysiology Analysis
 * **[Figure 7](figure7_longtermMyelin.ipynb)**: Myelin-Dependent Long-Term Motor Recovery 
+
+> **Citation:** Dutta, S. et al. (2026). Paired VNS Remyelination Electrophysiology & Behavior Data. Figshare. https://doi.org/10.6084/m9.figshare.31366603
