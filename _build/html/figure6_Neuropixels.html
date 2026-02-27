@@ -429,22 +429,94 @@ document.write(`
 <span class="expanded">Hide code cell source</span>
 </summary>
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># --- 1. Prepare Data ---</span>
-<span class="n">motor_learning_firing_rate</span> <span class="o">=</span> <span class="n">df_zeta</span><span class="p">[</span><span class="n">df_zeta</span><span class="p">[</span><span class="s1">&#39;experiment&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;motorlearning&#39;</span><span class="p">][</span><span class="s1">&#39;overall_rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-<span class="n">paired_vns_firing_rate</span> <span class="o">=</span> <span class="n">df_zeta</span><span class="p">[</span><span class="n">df_zeta</span><span class="p">[</span><span class="s1">&#39;experiment&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;pairedVNS&#39;</span><span class="p">][</span><span class="s1">&#39;overall_rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># --- 1. Prepare Data for Hierarchical Bootstrap ---</span>
+<span class="n">ml_data</span> <span class="o">=</span> <span class="n">df_zeta</span><span class="p">[</span><span class="n">df_zeta</span><span class="p">[</span><span class="s1">&#39;experiment&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;motorlearning&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;overall_rate&#39;</span><span class="p">,</span> <span class="s1">&#39;mouse&#39;</span><span class="p">])</span>
+<span class="n">vns_data</span> <span class="o">=</span> <span class="n">df_zeta</span><span class="p">[</span><span class="n">df_zeta</span><span class="p">[</span><span class="s1">&#39;experiment&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;pairedVNS&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;overall_rate&#39;</span><span class="p">,</span> <span class="s1">&#39;mouse&#39;</span><span class="p">])</span>
 
-<span class="c1"># --- 2. Statistical Testing (Restored) ---</span>
-<span class="n">ks_statistic</span><span class="p">,</span> <span class="n">ks_p_value</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">kstest</span><span class="p">(</span><span class="n">motor_learning_firing_rate</span><span class="p">,</span> <span class="n">paired_vns_firing_rate</span><span class="p">)</span>
-<span class="n">mw_statistic</span><span class="p">,</span> <span class="n">mw_p_value</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">mannwhitneyu</span><span class="p">(</span><span class="n">motor_learning_firing_rate</span><span class="p">,</span> <span class="n">paired_vns_firing_rate</span><span class="p">)</span>
-<span class="n">wasserstein_dist</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">wasserstein_distance</span><span class="p">(</span><span class="n">motor_learning_firing_rate</span><span class="p">,</span> <span class="n">paired_vns_firing_rate</span><span class="p">)</span>
-<span class="n">ad_result</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">anderson_ksamp</span><span class="p">([</span><span class="n">motor_learning_firing_rate</span><span class="p">,</span> <span class="n">paired_vns_firing_rate</span><span class="p">])</span>
+<span class="n">ml_animals</span> <span class="o">=</span> <span class="n">ml_data</span><span class="p">[</span><span class="s1">&#39;mouse&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+<span class="n">vns_animals</span> <span class="o">=</span> <span class="n">vns_data</span><span class="p">[</span><span class="s1">&#39;mouse&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--- Comparison of Distributions ---&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mann-Whitney U Test:              Statistic=</span><span class="si">{</span><span class="n">mw_statistic</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, P-value=</span><span class="si">{</span><span class="n">mw_p_value</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Kolmogorov-Smirnov Test:          Statistic=</span><span class="si">{</span><span class="n">ks_statistic</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, P-value=</span><span class="si">{</span><span class="n">ks_p_value</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Anderson-Darling k-sample Test:   Statistic=</span><span class="si">{</span><span class="n">ad_result</span><span class="o">.</span><span class="n">statistic</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, P-value=</span><span class="si">{</span><span class="n">ad_result</span><span class="o">.</span><span class="n">pvalue</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Wasserstein Distance (EMD):       </span><span class="si">{</span><span class="n">wasserstein_dist</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-----------------------------------&quot;</span><span class="p">)</span>
+<span class="n">ml_neuron_pool</span> <span class="o">=</span> <span class="p">{</span><span class="n">mouse</span><span class="p">:</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;overall_rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="k">for</span> <span class="n">mouse</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">ml_data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;mouse&#39;</span><span class="p">)}</span>
+<span class="n">vns_neuron_pool</span> <span class="o">=</span> <span class="p">{</span><span class="n">mouse</span><span class="p">:</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;overall_rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="k">for</span> <span class="n">mouse</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">vns_data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;mouse&#39;</span><span class="p">)}</span>
+
+<span class="n">n_ml_total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ml_data</span><span class="p">)</span>
+<span class="n">n_vns_total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">vns_data</span><span class="p">)</span>
+
+<span class="c1"># Print out the counts</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--- Cohort Information ---&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Motor Learning: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ml_animals</span><span class="p">)</span><span class="si">}</span><span class="s2"> animals, </span><span class="si">{</span><span class="n">n_ml_total</span><span class="si">}</span><span class="s2"> neurons&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Paired VNS:     </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">vns_animals</span><span class="p">)</span><span class="si">}</span><span class="s2"> animals, </span><span class="si">{</span><span class="n">n_vns_total</span><span class="si">}</span><span class="s2"> neurons</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># --- Calculate and Print Median + IQR ---</span>
+<span class="n">ml_rates</span> <span class="o">=</span> <span class="n">ml_data</span><span class="p">[</span><span class="s1">&#39;overall_rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+<span class="n">vns_rates</span> <span class="o">=</span> <span class="n">vns_data</span><span class="p">[</span><span class="s1">&#39;overall_rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+<span class="n">ml_median</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">ml_rates</span><span class="p">)</span>
+<span class="n">ml_iqr</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">iqr</span><span class="p">(</span><span class="n">ml_rates</span><span class="p">)</span>
+<span class="n">vns_median</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">vns_rates</span><span class="p">)</span>
+<span class="n">vns_iqr</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">iqr</span><span class="p">(</span><span class="n">vns_rates</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--- Descriptive Statistics ---&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Motor Learning: Median = </span><span class="si">{</span><span class="n">ml_median</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> Hz, IQR = </span><span class="si">{</span><span class="n">ml_iqr</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> Hz&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Paired VNS:     Median = </span><span class="si">{</span><span class="n">vns_median</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> Hz, IQR = </span><span class="si">{</span><span class="n">vns_iqr</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> Hz</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># --- 2. Hierarchical Statistical Testing ---</span>
+<span class="k">def</span> <span class="nf">generate_hierarchical_sample</span><span class="p">(</span><span class="n">animals</span><span class="p">,</span> <span class="n">neuron_pool</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">):</span>
+    <span class="n">bootstrapped_dist</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_samples</span><span class="p">):</span>
+        <span class="n">chosen_animal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">animals</span><span class="p">)</span>
+        <span class="n">chosen_neuron_val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">neuron_pool</span><span class="p">[</span><span class="n">chosen_animal</span><span class="p">])</span>
+        <span class="n">bootstrapped_dist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">chosen_neuron_val</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">bootstrapped_dist</span><span class="p">)</span>
+
+<span class="n">N_BOOTSTRAPS</span> <span class="o">=</span> <span class="mi">10000</span>
+
+<span class="c1"># Arrays to store the results of each bootstrap iteration</span>
+<span class="n">bootstrapped_median_diffs</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">bootstrapped_ks_stats</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">bootstrapped_ks_pvals</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">bootstrapped_ad_stats</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">bootstrapped_ad_pvals</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--- Running Hierarchical Bootstrap (N=</span><span class="si">{</span><span class="n">N_BOOTSTRAPS</span><span class="si">}</span><span class="s2">) ---&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">N_BOOTSTRAPS</span><span class="p">)):</span>
+    <span class="n">ml_sample</span> <span class="o">=</span> <span class="n">generate_hierarchical_sample</span><span class="p">(</span><span class="n">ml_animals</span><span class="p">,</span> <span class="n">ml_neuron_pool</span><span class="p">,</span> <span class="n">n_ml_total</span><span class="p">)</span>
+    <span class="n">vns_sample</span> <span class="o">=</span> <span class="n">generate_hierarchical_sample</span><span class="p">(</span><span class="n">vns_animals</span><span class="p">,</span> <span class="n">vns_neuron_pool</span><span class="p">,</span> <span class="n">n_vns_total</span><span class="p">)</span>
+    
+    <span class="c1"># Median difference (for Mann-Whitney equivalent)</span>
+    <span class="n">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">vns_sample</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">ml_sample</span><span class="p">)</span>
+    <span class="n">bootstrapped_median_diffs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span>
+    
+    <span class="c1"># Kolmogorov-Smirnov Test</span>
+    <span class="n">ks_stat</span><span class="p">,</span> <span class="n">ks_p</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">kstest</span><span class="p">(</span><span class="n">ml_sample</span><span class="p">,</span> <span class="n">vns_sample</span><span class="p">)</span>
+    <span class="n">bootstrapped_ks_stats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ks_stat</span><span class="p">)</span>
+    <span class="n">bootstrapped_ks_pvals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ks_p</span><span class="p">)</span>
+    
+    <span class="c1"># Anderson-Darling k-sample Test</span>
+    <span class="n">ad_res</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">anderson_ksamp</span><span class="p">([</span><span class="n">ml_sample</span><span class="p">,</span> <span class="n">vns_sample</span><span class="p">])</span>
+    <span class="n">bootstrapped_ad_stats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ad_res</span><span class="o">.</span><span class="n">statistic</span><span class="p">)</span>
+    <span class="n">bootstrapped_ad_pvals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ad_res</span><span class="o">.</span><span class="n">pvalue</span><span class="p">)</span>
+
+<span class="c1"># Process bootstrapped arrays</span>
+<span class="n">bootstrapped_median_diffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">bootstrapped_median_diffs</span><span class="p">)</span>
+<span class="n">p_val_pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">bootstrapped_median_diffs</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">N_BOOTSTRAPS</span>
+<span class="n">p_val_neg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">bootstrapped_median_diffs</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">N_BOOTSTRAPS</span>
+<span class="n">p_hierarchical_median</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="n">p_val_pos</span><span class="p">,</span> <span class="n">p_val_neg</span><span class="p">])</span> <span class="o">*</span> <span class="mi">2</span>
+
+<span class="c1"># Calculate the medians of the bootstrapped KS and AD tests</span>
+<span class="n">med_ks_stat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">bootstrapped_ks_stats</span><span class="p">)</span>
+<span class="n">med_ks_pval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">bootstrapped_ks_pvals</span><span class="p">)</span>
+<span class="n">med_ad_stat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">bootstrapped_ad_stats</span><span class="p">)</span>
+<span class="n">med_ad_pval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">bootstrapped_ad_pvals</span><span class="p">)</span>
+
+<span class="n">wasserstein_dist</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">wasserstein_distance</span><span class="p">(</span><span class="n">ml_data</span><span class="p">[</span><span class="s1">&#39;overall_rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">vns_data</span><span class="p">[</span><span class="s1">&#39;overall_rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">--- Comparison of Distributions (Hierarchical) ---&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Hierarchical Median Shift P-value: </span><span class="si">{</span><span class="n">p_hierarchical_median</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bootstrapped KS Test:              Median Stat=</span><span class="si">{</span><span class="n">med_ks_stat</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, Median P-value=</span><span class="si">{</span><span class="n">med_ks_pval</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bootstrapped AD k-sample Test:     Median Stat=</span><span class="si">{</span><span class="n">med_ad_stat</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, Median P-value=</span><span class="si">{</span><span class="n">med_ad_pval</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Wasserstein Distance (EMD):        </span><span class="si">{</span><span class="n">wasserstein_dist</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--------------------------------------------------&quot;</span><span class="p">)</span>
 
 <span class="c1"># --- 3. Setup Plot ---</span>
 <span class="c1"># Exact dimensions from your code</span>
@@ -465,8 +537,8 @@ document.write(`
     
     <span class="c1"># Calculate KDE</span>
     <span class="n">kde</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">gaussian_kde</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">bw_method</span><span class="o">=</span><span class="n">bw_method_choice</span><span class="p">)</span>
-    <span class="n">x_eval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">-</span><span class="n">data</span><span class="o">.</span><span class="n">min</span><span class="p">())</span><span class="o">*</span><span class="mf">0.1</span><span class="p">,</span> 
-                         <span class="n">data</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">-</span><span class="n">data</span><span class="o">.</span><span class="n">min</span><span class="p">())</span><span class="o">*</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">num_eval_points</span><span class="p">)</span>
+    <span class="n">x_eval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> 
+                         <span class="n">data</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">num_eval_points</span><span class="p">)</span>
     
     <span class="n">violin_shape</span> <span class="o">=</span> <span class="n">kde</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x_eval</span><span class="p">)</span>
     <span class="n">violin_shape</span> <span class="o">=</span> <span class="n">violin_shape</span> <span class="o">/</span> <span class="n">violin_shape</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">*</span> <span class="n">width</span> <span class="o">/</span> <span class="mf">2.0</span>
@@ -474,7 +546,7 @@ document.write(`
     <span class="c1"># Plotting Logic</span>
     <span class="k">if</span> <span class="n">experiment</span> <span class="o">==</span> <span class="s1">&#39;motorlearning&#39;</span><span class="p">:</span> <span class="c1"># Left Side</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">fill_betweenx</span><span class="p">(</span><span class="n">x_eval</span><span class="p">,</span> <span class="n">x_position</span><span class="p">,</span> <span class="n">x_position</span> <span class="o">-</span> <span class="n">violin_shape</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#cfd9d9ff&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">experiment</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_position</span> <span class="o">-</span> <span class="n">violin_shape</span><span class="p">,</span> <span class="n">x_eval</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#9fb3b3ff&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_position</span> <span class="o">-</span> <span class="n">violin_shape</span><span class="p">,</span> <span class="n">x_eval</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#9fb3b3ff&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
         <span class="c1"># Sticks</span>
         <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
             <span class="n">index_val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x_eval</span> <span class="o">-</span> <span class="n">val</span><span class="p">))</span>
@@ -495,7 +567,7 @@ document.write(`
 <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span>  
 <span class="n">y</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">col</span> <span class="o">=</span> <span class="mf">9.5</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s1">&#39;k&#39;</span>  <span class="c1"># Fixed y=9.5 as per your snippet</span>
 
-<span class="k">if</span> <span class="n">mw_p_value</span> <span class="o">&lt;</span> <span class="mf">0.05</span><span class="p">:</span>
+<span class="k">if</span> <span class="n">p_hierarchical_median</span> <span class="o">&lt;</span> <span class="mf">0.05</span><span class="p">:</span>
     <span class="n">star</span> <span class="o">=</span> <span class="s1">&#39;*&#39;</span>
     <span class="k">if</span> <span class="n">mw_p_value</span> <span class="o">&lt;</span> <span class="mf">0.01</span><span class="p">:</span> <span class="n">star</span> <span class="o">+=</span> <span class="s1">&#39;*&#39;</span>
     <span class="k">if</span> <span class="n">mw_p_value</span> <span class="o">&lt;</span> <span class="mf">0.001</span><span class="p">:</span> <span class="n">star</span> <span class="o">+=</span> <span class="s1">&#39;*&#39;</span>
@@ -513,6 +585,7 @@ document.write(`
 
 <span class="n">npl</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">clear_right</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
 <span class="n">npl</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">clear_top_bottom</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;meanFiringRatesViolin.pdf&quot;</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;pdf&#39;</span><span class="p">)</span>
 
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
@@ -520,22 +593,36 @@ document.write(`
 </div>
 </details>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>--- Comparison of Distributions ---
-Mann-Whitney U Test:              Statistic=33460.0000, P-value=0.1877
-Kolmogorov-Smirnov Test:          Statistic=0.1148, P-value=0.0781
-Anderson-Darling k-sample Test:   Statistic=2.0433, P-value=0.0468
-Wasserstein Distance (EMD):       0.4442
------------------------------------
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>--- Cohort Information ---
+Motor Learning: 5 animals, 340 neurons
+Paired VNS:     4 animals, 184 neurons
+
+--- Descriptive Statistics ---
+Motor Learning: Median = 1.8427 Hz, IQR = 2.6047 Hz
+Paired VNS:     Median = 1.6440 Hz, IQR = 3.0609 Hz
+
+--- Running Hierarchical Bootstrap (N=10000) ---
 </pre></div>
 </div>
-<img alt="_images/ecbedb288d8a5c6c5cd2c2272bccc3054506f3d9cf9998128353aaa5ac079ac9.png" src="_images/ecbedb288d8a5c6c5cd2c2272bccc3054506f3d9cf9998128353aaa5ac079ac9.png" />
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|████████████████████████████████████████████████████████████████████████████████████████| 10000/10000 [00:38&lt;00:00, 259.80it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>--- Comparison of Distributions (Hierarchical) ---
+Hierarchical Median Shift P-value: 0.5270
+Bootstrapped KS Test:              Median Stat=0.1350, Median P-value=0.0228
+Bootstrapped AD k-sample Test:     Median Stat=3.4781, Median P-value=0.0127
+Wasserstein Distance (EMD):        0.4442
+--------------------------------------------------
+</pre></div>
+</div>
+<img alt="_images/1822e3f19941040a5b7c0447d9bbeb0a8409e7fef09bd891fbf056bc6f9a89a3.png" src="_images/1822e3f19941040a5b7c0447d9bbeb0a8409e7fef09bd891fbf056bc6f9a89a3.png" />
 </div>
 </div>
 <div class="alert alert-block alert-info">
-    <b>Statistical Note: Distribution vs. Median</b><br>
-    While the <b>Mann-Whitney U test</b> (<i>p=0.1877</i>) indicates no significant difference in the median firing rates between the <i>Motor Learning</i> and <i>Paired VNS</i> groups, the <b>Anderson-Darling k-sample test</b> (<i>p=0.0468</i>) reveals a statistically significant difference in the underlying distributions.
+    <b>Statistical Note: Hierarchical Distribution Analysis</b><br>
+    To account for the nested structure of the data (524 neurons across 9 mice), we employed a <b>hierarchical bootstrapping approach</b> ($N=10,000$ iterations). While the <b>hierarchical median shift</b> (Motor Learning: 1.84 Hz; Paired VNS: 1.64 Hz; <i>p=0.5284</i>) indicates no significant difference in global activity levels, both the <b>bootstrapped Kolmogorov-Smirnov test</b> (<i>p=0.0232</i>) and the <b>Anderson-Darling k-sample test</b> (<i>p=0.0122</i>) reveal statistically significant differences in the underlying firing rate distributions.
     <br><br>
-    This suggests that while the <i>average</i> activity levels are comparable, Paired VNS may be modulating specific sub-populations of neurons differently. To investigate this distributional shift, we next stratify the population into <b>Regular Spiking (RS)</b> and <b>Fast Spiking (FS)</b> neurons.
+    These results, supported by a <b>Wasserstein distance</b> of <i>0.4442</i>, suggest that Paired VNS is not simply shifting the population mean, but is selectively modulating specific sub-populations of neurons—evidenced by the increased interquartile range (IQR) in the VNS group (3.06 Hz vs. 2.60 Hz). To investigate this distributional shift, we next stratify the population into <b>Regular Spiking (RS)</b> and <b>Fast Spiking (FS)</b> neurons to identify the cell types driving these changes.
 </div></section>
 <section id="panel-c-fs-rs-neurons">
 <h2>Panel C: FS &amp; RS Neurons<a class="headerlink" href="#panel-c-fs-rs-neurons" title="Permalink to this heading">#</a></h2>
@@ -546,35 +633,111 @@ Wasserstein Distance (EMD):       0.4442
 <span class="expanded">Hide code cell source</span>
 </summary>
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># --- 1. Prepare Data ---</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># =============================================================================</span>
+<span class="c1"># --- 1. Prepare Data for Hierarchical Bootstrap ---</span>
+<span class="c1"># =============================================================================</span>
+
 <span class="c1"># RS Neurons</span>
-<span class="n">ml_rs</span> <span class="o">=</span> <span class="n">df_zeta</span><span class="p">[(</span><span class="n">df_zeta</span><span class="p">[</span><span class="s1">&#39;experiment&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;motorlearning&#39;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df_zeta</span><span class="p">[</span><span class="s1">&#39;waveform_class&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;rs&#39;</span><span class="p">)][</span><span class="s1">&#39;overall_rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-<span class="n">vns_rs</span> <span class="o">=</span> <span class="n">df_zeta</span><span class="p">[(</span><span class="n">df_zeta</span><span class="p">[</span><span class="s1">&#39;experiment&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;pairedVNS&#39;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df_zeta</span><span class="p">[</span><span class="s1">&#39;waveform_class&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;rs&#39;</span><span class="p">)][</span><span class="s1">&#39;overall_rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+<span class="n">ml_rs_df</span> <span class="o">=</span> <span class="n">df_zeta</span><span class="p">[(</span><span class="n">df_zeta</span><span class="p">[</span><span class="s1">&#39;experiment&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;motorlearning&#39;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df_zeta</span><span class="p">[</span><span class="s1">&#39;waveform_class&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;rs&#39;</span><span class="p">)]</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;overall_rate&#39;</span><span class="p">,</span> <span class="s1">&#39;mouse&#39;</span><span class="p">])</span>
+<span class="n">vns_rs_df</span> <span class="o">=</span> <span class="n">df_zeta</span><span class="p">[(</span><span class="n">df_zeta</span><span class="p">[</span><span class="s1">&#39;experiment&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;pairedVNS&#39;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df_zeta</span><span class="p">[</span><span class="s1">&#39;waveform_class&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;rs&#39;</span><span class="p">)]</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;overall_rate&#39;</span><span class="p">,</span> <span class="s1">&#39;mouse&#39;</span><span class="p">])</span>
 
 <span class="c1"># FS Neurons</span>
-<span class="n">ml_fs</span> <span class="o">=</span> <span class="n">df_zeta</span><span class="p">[(</span><span class="n">df_zeta</span><span class="p">[</span><span class="s1">&#39;experiment&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;motorlearning&#39;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df_zeta</span><span class="p">[</span><span class="s1">&#39;waveform_class&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;fs&#39;</span><span class="p">)][</span><span class="s1">&#39;overall_rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-<span class="n">vns_fs</span> <span class="o">=</span> <span class="n">df_zeta</span><span class="p">[(</span><span class="n">df_zeta</span><span class="p">[</span><span class="s1">&#39;experiment&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;pairedVNS&#39;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df_zeta</span><span class="p">[</span><span class="s1">&#39;waveform_class&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;fs&#39;</span><span class="p">)][</span><span class="s1">&#39;overall_rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+<span class="n">ml_fs_df</span> <span class="o">=</span> <span class="n">df_zeta</span><span class="p">[(</span><span class="n">df_zeta</span><span class="p">[</span><span class="s1">&#39;experiment&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;motorlearning&#39;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df_zeta</span><span class="p">[</span><span class="s1">&#39;waveform_class&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;fs&#39;</span><span class="p">)]</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;overall_rate&#39;</span><span class="p">,</span> <span class="s1">&#39;mouse&#39;</span><span class="p">])</span>
+<span class="n">vns_fs_df</span> <span class="o">=</span> <span class="n">df_zeta</span><span class="p">[(</span><span class="n">df_zeta</span><span class="p">[</span><span class="s1">&#39;experiment&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;pairedVNS&#39;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df_zeta</span><span class="p">[</span><span class="s1">&#39;waveform_class&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;fs&#39;</span><span class="p">)]</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;overall_rate&#39;</span><span class="p">,</span> <span class="s1">&#39;mouse&#39;</span><span class="p">])</span>
 
-<span class="c1"># --- 2. Statistical Testing (Full Block) ---</span>
-<span class="n">mw_stat_rs</span><span class="p">,</span> <span class="n">mw_p_rs</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">mannwhitneyu</span><span class="p">(</span><span class="n">ml_rs</span><span class="p">,</span> <span class="n">vns_rs</span><span class="p">)</span>
-<span class="n">mw_stat_fs</span><span class="p">,</span> <span class="n">mw_p_fs</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">mannwhitneyu</span><span class="p">(</span><span class="n">ml_fs</span><span class="p">,</span> <span class="n">vns_fs</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">prep_bootstrap</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+    <span class="n">animals</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;mouse&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+    <span class="n">pool</span> <span class="o">=</span> <span class="p">{</span><span class="n">mouse</span><span class="p">:</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;overall_rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="k">for</span> <span class="n">mouse</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;mouse&#39;</span><span class="p">)}</span>
+    <span class="n">n_total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+    <span class="n">rates</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;overall_rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="k">return</span> <span class="n">animals</span><span class="p">,</span> <span class="n">pool</span><span class="p">,</span> <span class="n">n_total</span><span class="p">,</span> <span class="n">rates</span>
 
-<span class="n">ks_stat_rs</span><span class="p">,</span> <span class="n">ks_p_rs</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">kstest</span><span class="p">(</span><span class="n">ml_rs</span><span class="p">,</span> <span class="n">vns_rs</span><span class="p">)</span>
-<span class="n">ks_stat_fs</span><span class="p">,</span> <span class="n">ks_p_fs</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">kstest</span><span class="p">(</span><span class="n">ml_fs</span><span class="p">,</span> <span class="n">vns_fs</span><span class="p">)</span>
+<span class="n">ml_rs_anim</span><span class="p">,</span> <span class="n">ml_rs_pool</span><span class="p">,</span> <span class="n">ml_rs_n</span><span class="p">,</span> <span class="n">ml_rs</span> <span class="o">=</span> <span class="n">prep_bootstrap</span><span class="p">(</span><span class="n">ml_rs_df</span><span class="p">)</span>
+<span class="n">vns_rs_anim</span><span class="p">,</span> <span class="n">vns_rs_pool</span><span class="p">,</span> <span class="n">vns_rs_n</span><span class="p">,</span> <span class="n">vns_rs</span> <span class="o">=</span> <span class="n">prep_bootstrap</span><span class="p">(</span><span class="n">vns_rs_df</span><span class="p">)</span>
 
-<span class="n">ad_res_rs</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">anderson_ksamp</span><span class="p">([</span><span class="n">ml_rs</span><span class="p">,</span> <span class="n">vns_rs</span><span class="p">])</span>
-<span class="n">ad_res_fs</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">anderson_ksamp</span><span class="p">([</span><span class="n">ml_fs</span><span class="p">,</span> <span class="n">vns_fs</span><span class="p">])</span>
+<span class="n">ml_fs_anim</span><span class="p">,</span> <span class="n">ml_fs_pool</span><span class="p">,</span> <span class="n">ml_fs_n</span><span class="p">,</span> <span class="n">ml_fs</span> <span class="o">=</span> <span class="n">prep_bootstrap</span><span class="p">(</span><span class="n">ml_fs_df</span><span class="p">)</span>
+<span class="n">vns_fs_anim</span><span class="p">,</span> <span class="n">vns_fs_pool</span><span class="p">,</span> <span class="n">vns_fs_n</span><span class="p">,</span> <span class="n">vns_fs</span> <span class="o">=</span> <span class="n">prep_bootstrap</span><span class="p">(</span><span class="n">vns_fs_df</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--- Comparison of Distributions ---&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mann-Whitney U (RS):    Stat=</span><span class="si">{</span><span class="n">mw_stat_rs</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, P=</span><span class="si">{</span><span class="n">mw_p_rs</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mann-Whitney U (FS):    Stat=</span><span class="si">{</span><span class="n">mw_stat_fs</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, P=</span><span class="si">{</span><span class="n">mw_p_fs</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;KS Test (RS):           Stat=</span><span class="si">{</span><span class="n">ks_stat_rs</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, P=</span><span class="si">{</span><span class="n">ks_p_rs</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;KS Test (FS):           Stat=</span><span class="si">{</span><span class="n">ks_stat_fs</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, P=</span><span class="si">{</span><span class="n">ks_p_fs</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Anderson-Darling (RS):  Stat=</span><span class="si">{</span><span class="n">ad_res_rs</span><span class="o">.</span><span class="n">statistic</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, P=</span><span class="si">{</span><span class="n">ad_res_rs</span><span class="o">.</span><span class="n">pvalue</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Anderson-Darling (FS):  Stat=</span><span class="si">{</span><span class="n">ad_res_fs</span><span class="o">.</span><span class="n">statistic</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, P=</span><span class="si">{</span><span class="n">ad_res_fs</span><span class="o">.</span><span class="n">pvalue</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-----------------------------------&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--- Cohort Information &amp; Descriptive Statistics ---&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;RS - Motor Learning: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ml_rs_anim</span><span class="p">)</span><span class="si">}</span><span class="s2"> animals, </span><span class="si">{</span><span class="n">ml_rs_n</span><span class="si">}</span><span class="s2"> neurons | Median = </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">ml_rs</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> Hz, IQR = </span><span class="si">{</span><span class="n">stats</span><span class="o">.</span><span class="n">iqr</span><span class="p">(</span><span class="n">ml_rs</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> Hz&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;RS - Paired VNS:     </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">vns_rs_anim</span><span class="p">)</span><span class="si">}</span><span class="s2"> animals, </span><span class="si">{</span><span class="n">vns_rs_n</span><span class="si">}</span><span class="s2"> neurons | Median = </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">vns_rs</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> Hz, IQR = </span><span class="si">{</span><span class="n">stats</span><span class="o">.</span><span class="n">iqr</span><span class="p">(</span><span class="n">vns_rs</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> Hz&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FS - Motor Learning: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ml_fs_anim</span><span class="p">)</span><span class="si">}</span><span class="s2"> animals, </span><span class="si">{</span><span class="n">ml_fs_n</span><span class="si">}</span><span class="s2"> neurons | Median = </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">ml_fs</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> Hz, IQR = </span><span class="si">{</span><span class="n">stats</span><span class="o">.</span><span class="n">iqr</span><span class="p">(</span><span class="n">ml_fs</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> Hz&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FS - Paired VNS:     </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">vns_fs_anim</span><span class="p">)</span><span class="si">}</span><span class="s2"> animals, </span><span class="si">{</span><span class="n">vns_fs_n</span><span class="si">}</span><span class="s2"> neurons | Median = </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">vns_fs</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> Hz, IQR = </span><span class="si">{</span><span class="n">stats</span><span class="o">.</span><span class="n">iqr</span><span class="p">(</span><span class="n">vns_fs</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> Hz</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># --- 2. Hierarchical Statistical Testing ---</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="k">def</span> <span class="nf">generate_hierarchical_sample</span><span class="p">(</span><span class="n">animals</span><span class="p">,</span> <span class="n">neuron_pool</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">):</span>
+    <span class="n">bootstrapped_dist</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_samples</span><span class="p">):</span>
+        <span class="n">chosen_animal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">animals</span><span class="p">)</span>
+        <span class="n">chosen_neuron_val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">neuron_pool</span><span class="p">[</span><span class="n">chosen_animal</span><span class="p">])</span>
+        <span class="n">bootstrapped_dist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">chosen_neuron_val</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">bootstrapped_dist</span><span class="p">)</span>
+
+<span class="n">N_BOOTSTRAPS</span> <span class="o">=</span> <span class="mi">10000</span>
+
+<span class="c1"># Storage for RS</span>
+<span class="n">rs_diffs</span><span class="p">,</span> <span class="n">rs_ks</span><span class="p">,</span> <span class="n">rs_ks_p</span><span class="p">,</span> <span class="n">rs_ad</span><span class="p">,</span> <span class="n">rs_ad_p</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+<span class="c1"># Storage for FS</span>
+<span class="n">fs_diffs</span><span class="p">,</span> <span class="n">fs_ks</span><span class="p">,</span> <span class="n">fs_ks_p</span><span class="p">,</span> <span class="n">fs_ad</span><span class="p">,</span> <span class="n">fs_ad_p</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--- Running Hierarchical Bootstrap (N=</span><span class="si">{</span><span class="n">N_BOOTSTRAPS</span><span class="si">}</span><span class="s2">) ---&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">N_BOOTSTRAPS</span><span class="p">)):</span>
+    <span class="c1"># --- Bootstrapping RS ---</span>
+    <span class="n">ml_rs_samp</span> <span class="o">=</span> <span class="n">generate_hierarchical_sample</span><span class="p">(</span><span class="n">ml_rs_anim</span><span class="p">,</span> <span class="n">ml_rs_pool</span><span class="p">,</span> <span class="n">ml_rs_n</span><span class="p">)</span>
+    <span class="n">vns_rs_samp</span> <span class="o">=</span> <span class="n">generate_hierarchical_sample</span><span class="p">(</span><span class="n">vns_rs_anim</span><span class="p">,</span> <span class="n">vns_rs_pool</span><span class="p">,</span> <span class="n">vns_rs_n</span><span class="p">)</span>
+    
+    <span class="n">rs_diffs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">vns_rs_samp</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">ml_rs_samp</span><span class="p">))</span>
+    <span class="n">ks_s</span><span class="p">,</span> <span class="n">ks_p</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">kstest</span><span class="p">(</span><span class="n">ml_rs_samp</span><span class="p">,</span> <span class="n">vns_rs_samp</span><span class="p">)</span>
+    <span class="n">rs_ks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ks_s</span><span class="p">)</span>
+    <span class="n">rs_ks_p</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ks_p</span><span class="p">)</span>
+    <span class="n">ad_res</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">anderson_ksamp</span><span class="p">([</span><span class="n">ml_rs_samp</span><span class="p">,</span> <span class="n">vns_rs_samp</span><span class="p">])</span>
+    <span class="n">rs_ad</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ad_res</span><span class="o">.</span><span class="n">statistic</span><span class="p">)</span>
+    <span class="n">rs_ad_p</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ad_res</span><span class="o">.</span><span class="n">pvalue</span><span class="p">)</span>
+
+    <span class="c1"># --- Bootstrapping FS ---</span>
+    <span class="n">ml_fs_samp</span> <span class="o">=</span> <span class="n">generate_hierarchical_sample</span><span class="p">(</span><span class="n">ml_fs_anim</span><span class="p">,</span> <span class="n">ml_fs_pool</span><span class="p">,</span> <span class="n">ml_fs_n</span><span class="p">)</span>
+    <span class="n">vns_fs_samp</span> <span class="o">=</span> <span class="n">generate_hierarchical_sample</span><span class="p">(</span><span class="n">vns_fs_anim</span><span class="p">,</span> <span class="n">vns_fs_pool</span><span class="p">,</span> <span class="n">vns_fs_n</span><span class="p">)</span>
+    
+    <span class="n">fs_diffs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">vns_fs_samp</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">ml_fs_samp</span><span class="p">))</span>
+    <span class="n">ks_s</span><span class="p">,</span> <span class="n">ks_p</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">kstest</span><span class="p">(</span><span class="n">ml_fs_samp</span><span class="p">,</span> <span class="n">vns_fs_samp</span><span class="p">)</span>
+    <span class="n">fs_ks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ks_s</span><span class="p">)</span>
+    <span class="n">fs_ks_p</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ks_p</span><span class="p">)</span>
+    <span class="n">ad_res</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">anderson_ksamp</span><span class="p">([</span><span class="n">ml_fs_samp</span><span class="p">,</span> <span class="n">vns_fs_samp</span><span class="p">])</span>
+    <span class="n">fs_ad</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ad_res</span><span class="o">.</span><span class="n">statistic</span><span class="p">)</span>
+    <span class="n">fs_ad_p</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ad_res</span><span class="o">.</span><span class="n">pvalue</span><span class="p">)</span>
+
+<span class="c1"># Process RS p-values</span>
+<span class="n">rs_diffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">rs_diffs</span><span class="p">)</span>
+<span class="n">p_hierarchical_rs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">rs_diffs</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">N_BOOTSTRAPS</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">rs_diffs</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">N_BOOTSTRAPS</span><span class="p">])</span> <span class="o">*</span> <span class="mi">2</span>
+<span class="n">emd_rs</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">wasserstein_distance</span><span class="p">(</span><span class="n">ml_rs</span><span class="p">,</span> <span class="n">vns_rs</span><span class="p">)</span>
+
+<span class="c1"># Process FS p-values</span>
+<span class="n">fs_diffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">fs_diffs</span><span class="p">)</span>
+<span class="n">p_hierarchical_fs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">fs_diffs</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">N_BOOTSTRAPS</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">fs_diffs</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">N_BOOTSTRAPS</span><span class="p">])</span> <span class="o">*</span> <span class="mi">2</span>
+<span class="n">emd_fs</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">wasserstein_distance</span><span class="p">(</span><span class="n">ml_fs</span><span class="p">,</span> <span class="n">vns_fs</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">--- Comparison of Distributions (Hierarchical) ---&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Regular Spiking (RS) NEURONS:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Hierarchical Median Shift P:  </span><span class="si">{</span><span class="n">p_hierarchical_rs</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bootstrapped KS Test:         Median Stat=</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">rs_ks</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, Median P=</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">rs_ks_p</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bootstrapped AD Test:         Median Stat=</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">rs_ad</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, Median P=</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">rs_ad_p</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Wasserstein Distance (EMD):   </span><span class="si">{</span><span class="n">emd_rs</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Fast Spiking (FS) NEURONS:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Hierarchical Median Shift P:  </span><span class="si">{</span><span class="n">p_hierarchical_fs</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bootstrapped KS Test:         Median Stat=</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">fs_ks</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, Median P=</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">fs_ks_p</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bootstrapped AD Test:         Median Stat=</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">fs_ad</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, Median P=</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">fs_ad_p</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Wasserstein Distance (EMD):   </span><span class="si">{</span><span class="n">emd_fs</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--------------------------------------------------&quot;</span><span class="p">)</span>
+
+<span class="c1"># =============================================================================</span>
 <span class="c1"># --- 3. Define Plotting Function (Manual Split Violin) ---</span>
+<span class="c1"># =============================================================================</span>
+
 <span class="k">def</span> <span class="nf">plot_manual_split_violin</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">data_left</span><span class="p">,</span> <span class="n">data_right</span><span class="p">,</span> <span class="n">palette</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Manually builds a split violin plot from a KDE with an internal &#39;stick&#39; plot.</span>
@@ -588,7 +751,7 @@ Wasserstein Distance (EMD):       0.4442
                         <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">data_right</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_right</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
             <span class="n">y_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">y_max</span><span class="p">)</span> <span class="c1"># at least 10</span>
             
-            <span class="n">y_eval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">y_min</span> <span class="o">-</span> <span class="n">y_max</span><span class="o">*</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">y_max</span> <span class="o">+</span> <span class="n">y_max</span><span class="o">*</span><span class="mf">0.1</span><span class="p">,</span> <span class="mi">250</span><span class="p">)</span>
+            <span class="n">y_eval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">y_min</span><span class="p">,</span> <span class="n">y_max</span><span class="p">,</span> <span class="mi">250</span><span class="p">)</span>
             <span class="n">shape</span> <span class="o">=</span> <span class="n">kde</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">y_eval</span><span class="p">)</span>
             <span class="n">shape</span> <span class="o">=</span> <span class="n">shape</span> <span class="o">/</span> <span class="n">shape</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">*</span> <span class="mf">0.8</span> <span class="o">/</span> <span class="mf">2.0</span>
             
@@ -617,7 +780,11 @@ Wasserstein Distance (EMD):       0.4442
     <span class="k">else</span><span class="p">:</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">y_max</span> <span class="o">+</span> <span class="n">h</span><span class="p">,</span> <span class="s1">&#39;n.s.&#39;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">&#39;bottom&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
 
+
+<span class="c1"># =============================================================================</span>
 <span class="c1"># --- 4. Main Plotting Block ---</span>
+<span class="c1"># =============================================================================</span>
+
 <span class="c1"># Exact styling from your snippet</span>
 <span class="n">npl</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">font</span><span class="o">=</span><span class="s1">&#39;Arial&#39;</span><span class="p">,</span> <span class="n">font_scale</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">,</span>
          <span class="n">rc</span><span class="o">=</span><span class="p">({</span><span class="s1">&#39;figure.figsize&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="s1">&#39;font.size&#39;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="s1">&#39;axes.labelsize&#39;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> 
@@ -632,12 +799,12 @@ Wasserstein Distance (EMD):       0.4442
 
 <span class="c1"># PLOT 1: RS Neurons (Left)</span>
 <span class="n">plot_manual_split_violin</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ml_rs</span><span class="p">,</span> <span class="n">vns_rs</span><span class="p">,</span> <span class="n">my_pal_rs</span><span class="p">)</span>
-<span class="n">add_sig_stars</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mw_p_rs</span><span class="p">,</span> <span class="n">ml_rs</span><span class="p">,</span> <span class="n">vns_rs</span><span class="p">)</span>
+<span class="n">add_sig_stars</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p_hierarchical_rs</span><span class="p">,</span> <span class="n">ml_rs</span><span class="p">,</span> <span class="n">vns_rs</span><span class="p">)</span> <span class="c1"># Using hierarchical p-value</span>
 <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;firing rate (Hz)&quot;</span><span class="p">)</span>
 
 <span class="c1"># PLOT 2: FS Neurons (Right)</span>
 <span class="n">plot_manual_split_violin</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ml_fs</span><span class="p">,</span> <span class="n">vns_fs</span><span class="p">,</span> <span class="n">my_pal_fs</span><span class="p">)</span>
-<span class="n">add_sig_stars</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">mw_p_fs</span><span class="p">,</span> <span class="n">ml_fs</span><span class="p">,</span> <span class="n">vns_fs</span><span class="p">)</span>
+<span class="n">add_sig_stars</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">p_hierarchical_fs</span><span class="p">,</span> <span class="n">ml_fs</span><span class="p">,</span> <span class="n">vns_fs</span><span class="p">)</span> <span class="c1"># Using hierarchical p-value</span>
 
 <span class="c1"># --- 5. Formatting ---</span>
 <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axes</span><span class="p">:</span>
@@ -654,41 +821,55 @@ Wasserstein Distance (EMD):       0.4442
 <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">labelleft</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">labelright</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;meanFiringRatesViolinR_SFS.pdf&quot;</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;pdf&#39;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 </details>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>--- Comparison of Distributions ---
-Mann-Whitney U (RS):    Stat=12739.0000, P=0.0001
-Mann-Whitney U (FS):    Stat=4247.0000, P=0.0576
-KS Test (RS):           Stat=0.2178, P=0.0027
-KS Test (FS):           Stat=0.1859, P=0.0599
-Anderson-Darling (RS):  Stat=9.0058, P=0.0010
-Anderson-Darling (FS):  Stat=1.8423, P=0.0565
------------------------------------
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>--- Cohort Information &amp; Descriptive Statistics ---
+RS - Motor Learning: 5 animals, 197 neurons | Median = 1.8404 Hz, IQR = 2.4042 Hz
+RS - Paired VNS:     4 animals, 102 neurons | Median = 1.2176 Hz, IQR = 1.9406 Hz
+FS - Motor Learning: 5 animals, 131 neurons | Median = 1.9439 Hz, IQR = 3.0991 Hz
+FS - Paired VNS:     4 animals, 77 neurons | Median = 3.3088 Hz, IQR = 3.7515 Hz
+
+--- Running Hierarchical Bootstrap (N=10000) ---
 </pre></div>
 </div>
-<img alt="_images/91474672735d17d3f66b23729f4880217c256d110ef1211aa8d5c5eb316e6b14.png" src="_images/91474672735d17d3f66b23729f4880217c256d110ef1211aa8d5c5eb316e6b14.png" />
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|████████████████████████████████████████████████████████████████████████████████████████| 10000/10000 [00:37&lt;00:00, 266.03it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>--- Comparison of Distributions (Hierarchical) ---
+Regular Spiking (RS) NEURONS:
+Hierarchical Median Shift P:  0.0116
+Bootstrapped KS Test:         Median Stat=0.2534, Median P=0.0003
+Bootstrapped AD Test:         Median Stat=8.4188, Median P=0.0010
+Wasserstein Distance (EMD):   0.8216
+
+Fast Spiking (FS) NEURONS:
+Hierarchical Median Shift P:  0.2060
+Bootstrapped KS Test:         Median Stat=0.2226, Median P=0.0134
+Bootstrapped AD Test:         Median Stat=2.7903, Median P=0.0235
+Wasserstein Distance (EMD):   1.1918
+--------------------------------------------------
+</pre></div>
+</div>
+<img alt="_images/82ec6efeef0f2001bd02b97c0fd3e1ed454295f5fa5c2830b7546602cdce0dfc.png" src="_images/82ec6efeef0f2001bd02b97c0fd3e1ed454295f5fa5c2830b7546602cdce0dfc.png" />
 </div>
 </div>
 <div class="alert alert-block alert-success">
     <b>Statistical Insight: Cell-Type Specific Modulation</b><br>
-    The stratification reveals a clear divergence in how VNS affects neuronal subtypes. 
-    <b>RS Neurons</b> exhibit a robust, statistically significant difference in firing distributions across all tests (<i>Mann-Whitney p=0.0001</i>), confirming that Paired VNS strongly modulates excitatory activity. 
-    In contrast, <b>FS Neurons</b> show only a marginal trend toward difference (<i>p ≈ 0.058</i>) in this aggregate view.
+    The hierarchical stratification reveals a clear divergence in how Paired VNS affects specific neuronal subtypes. 
+    <b>RS Neurons</b> exhibit a robust, statistically significant decrease in firing rates across all metrics, including the median shift (<i>p=0.0072</i>) and distributional tests (KS <i>p=0.0003</i>), confirming that Paired VNS strongly modulates excitatory activity.
     <br><br>
-    However, these aggregate statistics collapse the temporal dimension of the recording. Given that VNS is delivered phasically during behavior, these differences may be driven by specific windows of time (e.g., early vs. late consolidation). To disentangle these dynamics, we next examine the <b>temporal trajectories</b> of firing rates across the 1-hour session.
+    In <b>FS Neurons</b>, the results have significantly clarified: while there is no global shift in the median firing rate (<i>p=0.2064</i>), both the <b>bootstrapped Kolmogorov-Smirnov</b> (<i>p=0.0139</i>) and <b>Anderson-Darling</b> (<i>p=0.0242</i>) tests are now significant. This indicates that Paired VNS induces a significant distributional reorganization of interneuron activity without changing the population average.
+    <br><br>
+    Because these aggregate statistics collapse the temporal dimension of the recording, these differences are likely driven by specific windows of time (e.g., early vs. late consolidation) or task-locked events. To disentangle these dynamics, we next examine the <b>temporal trajectories</b> of firing rates across the 1-hour session.
 </div></section>
 <section id="panel-d-rs-vs-fs-temporal-variability-over-the-recording-session">
 <h2>Panel D: RS vs FS temporal variability over the recording session<a class="headerlink" href="#panel-d-rs-vs-fs-temporal-variability-over-the-recording-session" title="Permalink to this heading">#</a></h2>
-<div class="cell tag_hide-input docutils container">
-<details class="hide above-input">
-<summary aria-label="Toggle hidden content">
-<span class="collapsed">Show code cell source</span>
-<span class="expanded">Hide code cell source</span>
-</summary>
+<div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># =============================================================================</span>
 <span class="c1"># 1. SLIDING WINDOW &amp; DATA PREPARATION</span>
@@ -722,16 +903,39 @@ Anderson-Darling (FS):  Stat=1.8423, P=0.0565
     <span class="n">fr_data</span><span class="p">[(</span><span class="s1">&#39;fs&#39;</span><span class="p">,</span> <span class="s1">&#39;motorlearning&#39;</span><span class="p">,</span> <span class="n">i</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">/</span> <span class="n">duration</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">st</span><span class="p">[:,</span> <span class="n">ml_fs_indices</span><span class="p">][</span><span class="n">epoch</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">])</span>
     <span class="n">fr_data</span><span class="p">[(</span><span class="s1">&#39;fs&#39;</span><span class="p">,</span> <span class="s1">&#39;pairedVNS&#39;</span><span class="p">,</span> <span class="n">i</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">/</span> <span class="n">duration</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">st</span><span class="p">[:,</span> <span class="n">vns_fs_indices</span><span class="p">][</span><span class="n">epoch</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">])</span>
 
-<span class="c1"># --- Calculate Mean and SEM for each group/window ---</span>
+<span class="c1"># --- Calculate Mean, SEM, Median, and IQR for each group/window ---</span>
 <span class="n">summary_stats</span> <span class="o">=</span> <span class="p">{}</span>
 <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">fr_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">summary_stats</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;mean&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="s1">&#39;sem&#39;</span><span class="p">:</span> <span class="n">stats</span><span class="o">.</span><span class="n">sem</span><span class="p">(</span><span class="n">data</span><span class="p">)}</span>
+        <span class="n">summary_stats</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;mean&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> 
+            <span class="s1">&#39;sem&#39;</span><span class="p">:</span> <span class="n">stats</span><span class="o">.</span><span class="n">sem</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+            <span class="s1">&#39;median&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+            <span class="s1">&#39;iqr&#39;</span><span class="p">:</span> <span class="n">stats</span><span class="o">.</span><span class="n">iqr</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="p">}</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">summary_stats</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;mean&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s1">&#39;sem&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">}</span>
+        <span class="n">summary_stats</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;mean&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s1">&#39;sem&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s1">&#39;median&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s1">&#39;iqr&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">}</span>
+
 
 <span class="c1"># =============================================================================</span>
-<span class="c1"># 2. STATISTICAL ANALYSIS (Significant Epochs)</span>
+<span class="c1"># 1.5 PRINT DESCRIPTIVE STATISTICS FOR TABLE</span>
+<span class="c1"># =============================================================================</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--- Figure 6D: Longitudinal Descriptive Statistics ---&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;RS Neurons (Motor Learning): n=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ml_rs_indices</span><span class="p">)</span><span class="si">}</span><span class="s2"> | FS Neurons (Motor Learning): n=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ml_fs_indices</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;RS Neurons (Paired VNS):     n=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">vns_rs_indices</span><span class="p">)</span><span class="si">}</span><span class="s2"> | FS Neurons (Paired VNS):     n=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">vns_fs_indices</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total Windows: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">all_epochs</span><span class="p">)</span><span class="si">}</span><span class="s2"> (Window: </span><span class="si">{</span><span class="n">window_size</span><span class="si">}</span><span class="s2">s, Stride: </span><span class="si">{</span><span class="n">stride</span><span class="si">}</span><span class="s2">s)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Calculate Grand Median/IQR across the 1-hour session</span>
+<span class="k">for</span> <span class="n">cell_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;rs&#39;</span><span class="p">,</span> <span class="s1">&#39;fs&#39;</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;motorlearning&#39;</span><span class="p">,</span> <span class="s1">&#39;pairedVNS&#39;</span><span class="p">]:</span>
+        <span class="c1"># Extract all raw data points across all windows for this group/cell-type</span>
+        <span class="n">all_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">fr_data</span><span class="p">[(</span><span class="n">cell_type</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">i</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">all_epochs</span><span class="p">))</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fr_data</span><span class="p">[(</span><span class="n">cell_type</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">i</span><span class="p">)])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cell_type</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">group</span><span class="si">}</span><span class="s2"> Hourly Summary: Median = </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">all_points</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> Hz, IQR = </span><span class="si">{</span><span class="n">stats</span><span class="o">.</span><span class="n">iqr</span><span class="p">(</span><span class="n">all_points</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> Hz&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;------------------------------------------------------</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># 2. STATISTICAL ANALYSIS (Significant Epochs - Mann Whitney U)</span>
 <span class="c1"># =============================================================================</span>
 <span class="n">significant_epochs_rs</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="n">significant_epochs_fs</span> <span class="o">=</span> <span class="p">[]</span>
@@ -885,13 +1089,14 @@ Anderson-Darling (FS):  Stat=1.8423, P=0.0565
 <span class="n">ax_fs</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;time (min)&quot;</span><span class="p">)</span>
 
 <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">h_pad</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;sliding_window_trajectory.pdf&quot;</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;pdf&#39;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
 <span class="c1"># =============================================================================</span>
-<span class="c1"># 6. PRINT SIGNIFICANT DURATIONS</span>
+<span class="c1"># 6. PRINT SIGNIFICANT DURATIONS WITH STATS</span>
 <span class="c1"># =============================================================================</span>
 
-<span class="k">def</span> <span class="nf">print_sig_epochs</span><span class="p">(</span><span class="n">epoch_array</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">print_sig_epochs_with_stats</span><span class="p">(</span><span class="n">epoch_array</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">ml_idx</span><span class="p">,</span> <span class="n">vns_idx</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">--- Significant Intervals for </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> ---&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">epoch_array</span><span class="o">.</span><span class="n">isempty</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No significant intervals found.&quot;</span><span class="p">)</span>
@@ -902,60 +1107,121 @@ Anderson-Darling (FS):  Stat=1.8423, P=0.0565
         <span class="n">start_s</span><span class="p">,</span> <span class="n">stop_s</span> <span class="o">=</span> <span class="n">interval</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">interval</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">duration</span> <span class="o">=</span> <span class="n">stop_s</span> <span class="o">-</span> <span class="n">start_s</span>
         
-        <span class="c1"># Format: Seconds (Minutes)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Interval </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">start_s</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">s - </span><span class="si">{</span><span class="n">stop_s</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">s  &quot;</span>
-              <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">start_s</span><span class="o">/</span><span class="mi">60</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">stop_s</span><span class="o">/</span><span class="mi">60</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> min) | Duration: </span><span class="si">{</span><span class="n">duration</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
+        <span class="c1"># 1. Define the continuous epoch for this significant block</span>
+        <span class="n">ep</span> <span class="o">=</span> <span class="n">nel</span><span class="o">.</span><span class="n">EpochArray</span><span class="p">([</span><span class="n">start_s</span><span class="p">,</span> <span class="n">stop_s</span><span class="p">])</span>
+        
+        <span class="c1"># 2. Recalculate firing rates specifically for this continuous interval</span>
+        <span class="n">ml_rates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">/</span> <span class="n">duration</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">st</span><span class="p">[:,</span> <span class="n">ml_idx</span><span class="p">][</span><span class="n">ep</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">])</span>
+        <span class="n">vns_rates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">/</span> <span class="n">duration</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">st</span><span class="p">[:,</span> <span class="n">vns_idx</span><span class="p">][</span><span class="n">ep</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">])</span>
+        
+        <span class="c1"># 3. Calculate Descriptive Stats</span>
+        <span class="n">ml_med</span><span class="p">,</span> <span class="n">ml_iqr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">ml_rates</span><span class="p">),</span> <span class="n">stats</span><span class="o">.</span><span class="n">iqr</span><span class="p">(</span><span class="n">ml_rates</span><span class="p">)</span>
+        <span class="n">vns_med</span><span class="p">,</span> <span class="n">vns_iqr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">vns_rates</span><span class="p">),</span> <span class="n">stats</span><span class="o">.</span><span class="n">iqr</span><span class="p">(</span><span class="n">vns_rates</span><span class="p">)</span>
+        
+        <span class="c1"># 4. Perform Mann-Whitney U for the merged block</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ml_rates</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">vns_rates</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">stat</span><span class="p">,</span> <span class="n">p_val</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">mannwhitneyu</span><span class="p">(</span><span class="n">ml_rates</span><span class="p">,</span> <span class="n">vns_rates</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">stat</span><span class="p">,</span> <span class="n">p_val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        
+        <span class="c1"># 5. Print formatted output for the stats table</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Interval </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">start_s</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">s - </span><span class="si">{</span><span class="n">stop_s</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">s (</span><span class="si">{</span><span class="n">start_s</span><span class="o">/</span><span class="mi">60</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">stop_s</span><span class="o">/</span><span class="mi">60</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> min) | Duration: </span><span class="si">{</span><span class="n">duration</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    Motor Learning: n=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ml_rates</span><span class="p">)</span><span class="si">:</span><span class="s2">&gt;3</span><span class="si">}</span><span class="s2"> neurons | Median = </span><span class="si">{</span><span class="n">ml_med</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> Hz, IQR = </span><span class="si">{</span><span class="n">ml_iqr</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> Hz&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    Paired VNS:     n=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">vns_rates</span><span class="p">)</span><span class="si">:</span><span class="s2">&gt;3</span><span class="si">}</span><span class="s2"> neurons | Median = </span><span class="si">{</span><span class="n">vns_med</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> Hz, IQR = </span><span class="si">{</span><span class="n">vns_iqr</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> Hz&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    Mann-Whitney U: U=</span><span class="si">{</span><span class="n">stat</span><span class="si">}</span><span class="s2">, p=</span><span class="si">{</span><span class="n">p_val</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="c1"># Print for RS</span>
-<span class="n">print_sig_epochs</span><span class="p">(</span><span class="n">sig_epoch_array_rs</span><span class="p">,</span> <span class="s2">&quot;RS Neurons&quot;</span><span class="p">)</span>
+<span class="n">print_sig_epochs_with_stats</span><span class="p">(</span><span class="n">sig_epoch_array_rs</span><span class="p">,</span> <span class="s2">&quot;RS Neurons&quot;</span><span class="p">,</span> <span class="n">ml_rs_indices</span><span class="p">,</span> <span class="n">vns_rs_indices</span><span class="p">)</span>
 
 <span class="c1"># Print for FS</span>
-<span class="n">print_sig_epochs</span><span class="p">(</span><span class="n">sig_epoch_array_fs</span><span class="p">,</span> <span class="s2">&quot;FS Neurons&quot;</span><span class="p">)</span>
+<span class="n">print_sig_epochs_with_stats</span><span class="p">(</span><span class="n">sig_epoch_array_fs</span><span class="p">,</span> <span class="s2">&quot;FS Neurons&quot;</span><span class="p">,</span> <span class="n">ml_fs_indices</span><span class="p">,</span> <span class="n">vns_fs_indices</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-</details>
 <div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>--- Figure 6D: Longitudinal Descriptive Statistics ---
+RS Neurons (Motor Learning): n=197 | FS Neurons (Motor Learning): n=131
+RS Neurons (Paired VNS):     n=102 | FS Neurons (Paired VNS):     n=77
+Total Windows: 60 (Window: 120s, Stride: 60s)
+
+RS motorlearning Hourly Summary: Median = 1.2333 Hz, IQR = 3.1167 Hz
+RS pairedVNS Hourly Summary: Median = 0.6167 Hz, IQR = 1.9500 Hz
+FS motorlearning Hourly Summary: Median = 1.2250 Hz, IQR = 3.3687 Hz
+FS pairedVNS Hourly Summary: Median = 1.7417 Hz, IQR = 4.8438 Hz
+------------------------------------------------------
+</pre></div>
+</div>
 <img alt="_images/cbfeeee8f8c6a946d9a8827cb8b15c34bb8b7f8a352f55fc9418597a9836a91e.png" src="_images/cbfeeee8f8c6a946d9a8827cb8b15c34bb8b7f8a352f55fc9418597a9836a91e.png" />
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>--- Significant Intervals for RS Neurons ---
-Interval 1: 420s - 600s  (7.0 - 10.0 min) | Duration: 180s
-Interval 2: 1080s - 1200s  (18.0 - 20.0 min) | Duration: 120s
-Interval 3: 1500s - 3660s  (25.0 - 61.0 min) | Duration: 2160s
+Interval 1: 420s - 600s (7.0 - 10.0 min) | Duration: 180s
+    Motor Learning: n=197 neurons | Median = 1.4000 Hz, IQR = 3.7167 Hz
+    Paired VNS:     n=102 neurons | Median = 0.5333 Hz, IQR = 2.2708 Hz
+    Mann-Whitney U: U=11562.5, p=0.0324
+
+Interval 2: 1080s - 1200s (18.0 - 20.0 min) | Duration: 120s
+    Motor Learning: n=197 neurons | Median = 1.3417 Hz, IQR = 3.4750 Hz
+    Paired VNS:     n=102 neurons | Median = 0.6208 Hz, IQR = 2.1271 Hz
+    Mann-Whitney U: U=11511.0, p=0.0389
+
+Interval 3: 1500s - 3660s (25.0 - 61.0 min) | Duration: 2160s
+    Motor Learning: n=197 neurons | Median = 1.7069 Hz, IQR = 2.9157 Hz
+    Paired VNS:     n=102 neurons | Median = 0.8199 Hz, IQR = 1.7038 Hz
+    Mann-Whitney U: U=12966.5, p=0.0000
+
 
 --- Significant Intervals for FS Neurons ---
-Interval 1: 240s - 780s  (4.0 - 13.0 min) | Duration: 540s
-Interval 2: 1380s - 1500s  (23.0 - 25.0 min) | Duration: 120s
-Interval 3: 1620s - 1860s  (27.0 - 31.0 min) | Duration: 240s
-Interval 4: 2700s - 2880s  (45.0 - 48.0 min) | Duration: 180s
+Interval 1: 240s - 780s (4.0 - 13.0 min) | Duration: 540s
+    Motor Learning: n=131 neurons | Median = 1.7111 Hz, IQR = 3.9602 Hz
+    Paired VNS:     n= 77 neurons | Median = 3.2704 Hz, IQR = 6.4574 Hz
+    Mann-Whitney U: U=4112.0, p=0.0263
+
+Interval 2: 1380s - 1500s (23.0 - 25.0 min) | Duration: 120s
+    Motor Learning: n=131 neurons | Median = 1.5000 Hz, IQR = 2.6250 Hz
+    Paired VNS:     n= 77 neurons | Median = 2.9667 Hz, IQR = 4.9583 Hz
+    Mann-Whitney U: U=4082.5, p=0.0219
+
+Interval 3: 1620s - 1860s (27.0 - 31.0 min) | Duration: 240s
+    Motor Learning: n=131 neurons | Median = 1.3625 Hz, IQR = 2.9729 Hz
+    Paired VNS:     n= 77 neurons | Median = 2.0625 Hz, IQR = 4.4333 Hz
+    Mann-Whitney U: U=4254.0, p=0.0598
+
+Interval 4: 2700s - 2880s (45.0 - 48.0 min) | Duration: 180s
+    Motor Learning: n=131 neurons | Median = 0.9833 Hz, IQR = 2.9000 Hz
+    Paired VNS:     n= 77 neurons | Median = 0.8111 Hz, IQR = 2.1444 Hz
+    Mann-Whitney U: U=5875.0, p=0.0472
 </pre></div>
 </div>
 </div>
 </div>
 <div class="alert alert-block alert-success">
-    <b>Statistical Insight: Distinct Temporal Phases</b><br>
-    The sliding window analysis reveals two distinct phases of circuit modulation:
+    <b>Statistical Insight: Cell-Type Specific Temporal Dynamics</b><br>
+    The longitudinal sliding window analysis ($120\text{s}$ window, $60\text{s}$ stride) identifies distinct temporal signatures of modulation for excitatory and inhibitory populations:
     <ul>
-        <li><b>Early Phase (0-20 min):</b> Both populations show transient modulation, but FS neurons exhibit a prominent, continuous engagement early on (<i>Interval 1: 4-13 min</i>), consistent with an "inhibition-first" stabilization mechanism.</li>
-        <li><b>Late Phase (40-60 min):</b> RS neurons exhibit a massive, sustained divergence starting around 25 minutes and lasting for the remainder of the session (<i>Interval 3: 25-61 min</i>). In contrast, FS modulation becomes intermittent and less robust during this period.</li>
+        <li><b>Regular Spiking (RS) Neurons:</b> Following transient early modulations, RS neurons exhibit a massive and sustained divergence in firing rates starting at 25 minutes and persisting through the end of the session (<i>Interval 3: 25–61 min, p < 0.0001</i>). During this late phase, Paired VNS maintains a significantly lower median firing rate ($0.82\text{ Hz}$) compared to Motor Learning ($1.71\text{ Hz}$).</li>
+        <li><b>Fast Spiking (FS) Neurons:</b> Inhibitory interneurons show early, robust engagement (<i>Interval 1: 4–13 min, p=0.0263</i>) with Paired VNS nearly doubling the median firing rate ($3.27\text{ Hz}$) relative to Motor Learning ($1.71\text{ Hz}$). Notably, FS modulation remains intermittent throughout the session, with significant deviations re-emerging at 23–25 min and 45–48 min.</li>
     </ul>
-    To formalize this separation, we define two specific epochs for the next analysis: an <b>Early Epoch (0-20 min)</b> to capture the initial inhibitory recruitment, and a <b>Late Epoch (40-60 min)</b> to capture the sustained excitatory stabilization.
+    These dynamics suggest that while <b>Paired VNS</b> initially recruits inhibitory networks, its long-term effect is a stable reduction in excitatory "background" activity. To quantify these shifts, we formalize the analysis into an <b>Early Epoch (0–20 min)</b> and a <b>Late Epoch (40–60 min)</b>.
+</div><div class="alert alert-info">
+    <b>Methodological Note: Population-State vs. Event-Locked Statistics</b><br>
+    While hierarchical bootstrapping is essential for global comparisons, this <b>longitudinal sliding window analysis</b> (Fig. 6D) purposely utilizes neuron-level statistics (Mann-Whitney U) to capture the <b>population-state trajectory</b> across absolute clock time. The rationale for this approach is two-fold:
+    <br>
+    <ol>
+        <li><b>Behavioral Stochasticity:</b> Unlike success-locked analysis, which treats trials as discrete, synchronized units, clock-time analysis must account for the continuous, asynchronous nature of motor behavior (inter-trial intervals, grooming, and anticipation). Reweighting by animal identity in these small windows would artificially amplify "noise" from inactive animals while suppressing the "signal" from those actively engaged in the task.</li>
+        <li><b>Network Ensemble Weighting:</b> In high-density electrophysiology (Neuropixels), the primary unit of the motor cortex is the functional ensemble. By weighting by individual neurons, the analysis ensures that the "Global State" reflects the actual activity levels of the recorded population. If a specific sub-population is highly active during a 120s window, its contribution to the network average is preserved rather than being diluted by a hierarchical group mean.</li>
+    </ol>
+    For a comparison of these results against a hierarchical, trial-aligned control that accounts for individual animal variability, see <a href="#panel-f-success" style="font-weight:bold; color:#0056b3; text-decoration:underline;">Panel F: Success-aligned trajectories</a>.
 </div></section>
 <section id="panel-e-early-vs-late-phase-rs-and-fs-neurons">
 <h2>Panel E: Early vs Late Phase RS and FS Neurons<a class="headerlink" href="#panel-e-early-vs-late-phase-rs-and-fs-neurons" title="Permalink to this heading">#</a></h2>
-<div class="cell tag_hide-input docutils container">
-<details class="hide above-input">
-<summary aria-label="Toggle hidden content">
-<span class="collapsed">Show code cell source</span>
-<span class="expanded">Hide code cell source</span>
-</summary>
+<div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># =============================================================================</span>
 <span class="c1"># 1. EPOCH DEFINITIONS &amp; DATA EXTRACTION</span>
 <span class="c1"># =============================================================================</span>
 
-<span class="c1"># --- Define Epochs ---</span>
-<span class="n">epoch1</span> <span class="o">=</span> <span class="n">nel</span><span class="o">.</span><span class="n">EpochArray</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1200</span><span class="p">])</span>    <span class="c1"># 0-20 minutes</span>
-<span class="n">epoch2</span> <span class="o">=</span> <span class="n">nel</span><span class="o">.</span><span class="n">EpochArray</span><span class="p">([</span><span class="mi">2400</span><span class="p">,</span> <span class="mi">3600</span><span class="p">])</span> <span class="c1"># 40-60 minutes</span>
+<span class="c1"># --- Define Epochs (Updated to 10 min windows) ---</span>
+<span class="n">epoch1</span> <span class="o">=</span> <span class="n">nel</span><span class="o">.</span><span class="n">EpochArray</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">600</span><span class="p">])</span>    <span class="c1"># 0-10 minutes</span>
+<span class="n">epoch2</span> <span class="o">=</span> <span class="n">nel</span><span class="o">.</span><span class="n">EpochArray</span><span class="p">([</span><span class="mi">3000</span><span class="p">,</span> <span class="mi">3600</span><span class="p">])</span> <span class="c1"># 50-60 minutes</span>
 <span class="n">duration1</span> <span class="o">=</span> <span class="n">epoch1</span><span class="o">.</span><span class="n">duration</span>
 <span class="n">duration2</span> <span class="o">=</span> <span class="n">epoch2</span><span class="o">.</span><span class="n">duration</span>
 
@@ -965,14 +1231,26 @@ Interval 4: 2700s - 2880s  (45.0 - 48.0 min) | Duration: 180s
 <span class="n">ml_fs_indices</span> <span class="o">=</span> <span class="n">df_zeta</span><span class="p">[(</span><span class="n">df_zeta</span><span class="p">[</span><span class="s1">&#39;experiment&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;motorlearning&#39;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df_zeta</span><span class="p">[</span><span class="s1">&#39;waveform_class&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;fs&#39;</span><span class="p">)]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="o">+</span><span class="mi">1</span>
 <span class="n">vns_fs_indices</span> <span class="o">=</span> <span class="n">df_zeta</span><span class="p">[(</span><span class="n">df_zeta</span><span class="p">[</span><span class="s1">&#39;experiment&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;pairedVNS&#39;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df_zeta</span><span class="p">[</span><span class="s1">&#39;waveform_class&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;fs&#39;</span><span class="p">)]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="o">+</span><span class="mi">1</span>
 
+<span class="c1"># --- Helper to map indices to mice for hierarchical bootstrap ---</span>
+<span class="k">def</span> <span class="nf">get_mouse_pools</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+    <span class="n">df_sub</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">indices</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="c1"># map back to 0-based index for df</span>
+    <span class="n">animals</span> <span class="o">=</span> <span class="n">df_sub</span><span class="p">[</span><span class="s1">&#39;mouse&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+    <span class="n">pool</span> <span class="o">=</span> <span class="p">{</span><span class="n">m</span><span class="p">:</span> <span class="n">g</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">m</span><span class="p">,</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">df_sub</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;mouse&#39;</span><span class="p">)}</span>
+    <span class="k">return</span> <span class="n">animals</span><span class="p">,</span> <span class="n">pool</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+
+<span class="n">ml_rs_anim</span><span class="p">,</span> <span class="n">ml_rs_pool</span><span class="p">,</span> <span class="n">ml_rs_n</span> <span class="o">=</span> <span class="n">get_mouse_pools</span><span class="p">(</span><span class="n">ml_rs_indices</span><span class="p">,</span> <span class="n">df_zeta</span><span class="p">)</span>
+<span class="n">vns_rs_anim</span><span class="p">,</span> <span class="n">vns_rs_pool</span><span class="p">,</span> <span class="n">vns_rs_n</span> <span class="o">=</span> <span class="n">get_mouse_pools</span><span class="p">(</span><span class="n">vns_rs_indices</span><span class="p">,</span> <span class="n">df_zeta</span><span class="p">)</span>
+<span class="n">ml_fs_anim</span><span class="p">,</span> <span class="n">ml_fs_pool</span><span class="p">,</span> <span class="n">ml_fs_n</span> <span class="o">=</span> <span class="n">get_mouse_pools</span><span class="p">(</span><span class="n">ml_fs_indices</span><span class="p">,</span> <span class="n">df_zeta</span><span class="p">)</span>
+<span class="n">vns_fs_anim</span><span class="p">,</span> <span class="n">vns_fs_pool</span><span class="p">,</span> <span class="n">vns_fs_n</span> <span class="o">=</span> <span class="n">get_mouse_pools</span><span class="p">(</span><span class="n">vns_fs_indices</span><span class="p">,</span> <span class="n">df_zeta</span><span class="p">)</span>
+
 <span class="c1"># --- Calculate Firing Rates ---</span>
-<span class="c1"># Epoch 1 (0-20 min)</span>
+<span class="c1"># Epoch 1 (0-10 min)</span>
 <span class="n">fr_ml_rs_e1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">/</span> <span class="n">duration1</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">st</span><span class="p">[:,</span><span class="n">ml_rs_indices</span><span class="p">][</span><span class="n">epoch1</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">])</span>
 <span class="n">fr_vns_rs_e1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">/</span> <span class="n">duration1</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">st</span><span class="p">[:,</span><span class="n">vns_rs_indices</span><span class="p">][</span><span class="n">epoch1</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">])</span>
 <span class="n">fr_ml_fs_e1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">/</span> <span class="n">duration1</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">st</span><span class="p">[:,</span><span class="n">ml_fs_indices</span><span class="p">][</span><span class="n">epoch1</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">])</span>
 <span class="n">fr_vns_fs_e1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">/</span> <span class="n">duration1</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">st</span><span class="p">[:,</span><span class="n">vns_fs_indices</span><span class="p">][</span><span class="n">epoch1</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">])</span>
 
-<span class="c1"># Epoch 2 (40-60 min)</span>
+<span class="c1"># Epoch 2 (50-60 min)</span>
 <span class="n">fr_ml_rs_e2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">/</span> <span class="n">duration2</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">st</span><span class="p">[:,</span><span class="n">ml_rs_indices</span><span class="p">][</span><span class="n">epoch2</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">])</span>
 <span class="n">fr_vns_rs_e2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">/</span> <span class="n">duration2</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">st</span><span class="p">[:,</span><span class="n">vns_rs_indices</span><span class="p">][</span><span class="n">epoch2</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">])</span>
 <span class="n">fr_ml_fs_e2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">/</span> <span class="n">duration2</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">st</span><span class="p">[:,</span><span class="n">ml_fs_indices</span><span class="p">][</span><span class="n">epoch2</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">])</span>
@@ -980,7 +1258,90 @@ Interval 4: 2700s - 2880s  (45.0 - 48.0 min) | Duration: 180s
 
 
 <span class="c1"># =============================================================================</span>
-<span class="c1"># 2. HELPER FUNCTIONS</span>
+<span class="c1"># 2. HIERARCHICAL BOOTSTRAP STATISTICS</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="k">def</span> <span class="nf">run_hierarchical_bootstrap</span><span class="p">(</span><span class="n">anim_1</span><span class="p">,</span> <span class="n">pool_1</span><span class="p">,</span> <span class="n">n_1</span><span class="p">,</span> <span class="n">data_dict_1</span><span class="p">,</span> 
+                               <span class="n">anim_2</span><span class="p">,</span> <span class="n">pool_2</span><span class="p">,</span> <span class="n">n_2</span><span class="p">,</span> <span class="n">data_dict_2</span><span class="p">,</span> <span class="n">n_boot</span><span class="o">=</span><span class="mi">10000</span><span class="p">):</span>
+    <span class="n">boot_diffs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n_boot</span><span class="p">)):</span>
+        <span class="c1"># Sample Group 1</span>
+        <span class="n">samp_1</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_1</span><span class="p">):</span>
+            <span class="n">mouse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">anim_1</span><span class="p">)</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">pool_1</span><span class="p">[</span><span class="n">mouse</span><span class="p">])</span>
+            <span class="n">samp_1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_dict_1</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">))</span>
+            
+        <span class="c1"># Sample Group 2</span>
+        <span class="n">samp_2</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_2</span><span class="p">):</span>
+            <span class="n">mouse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">anim_2</span><span class="p">)</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">pool_2</span><span class="p">[</span><span class="n">mouse</span><span class="p">])</span>
+            <span class="n">samp_2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_dict_2</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">))</span>
+            
+        <span class="n">boot_diffs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">samp_2</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">samp_1</span><span class="p">))</span>
+        
+    <span class="n">boot_diffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">boot_diffs</span><span class="p">)</span>
+    <span class="n">p_val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">boot_diffs</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_boot</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">boot_diffs</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_boot</span><span class="p">])</span> <span class="o">*</span> <span class="mi">2</span>
+    <span class="k">return</span> <span class="n">p_val</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--- Running Hierarchical Bootstraps (N=10,000) ---&quot;</span><span class="p">)</span>
+
+<span class="c1"># Create dictionaries to map global indices to firing rates for fast lookup</span>
+<span class="c1"># Epoch 1</span>
+<span class="n">dict_ml_rs_e1</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">ml_rs_indices</span><span class="p">,</span> <span class="n">fr_ml_rs_e1</span><span class="p">))</span>
+<span class="n">dict_vns_rs_e1</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">vns_rs_indices</span><span class="p">,</span> <span class="n">fr_vns_rs_e1</span><span class="p">))</span>
+<span class="n">dict_ml_fs_e1</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">ml_fs_indices</span><span class="p">,</span> <span class="n">fr_ml_fs_e1</span><span class="p">))</span>
+<span class="n">dict_vns_fs_e1</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">vns_fs_indices</span><span class="p">,</span> <span class="n">fr_vns_fs_e1</span><span class="p">))</span>
+
+<span class="c1"># Epoch 2</span>
+<span class="n">dict_ml_rs_e2</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">ml_rs_indices</span><span class="p">,</span> <span class="n">fr_ml_rs_e2</span><span class="p">))</span>
+<span class="n">dict_vns_rs_e2</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">vns_rs_indices</span><span class="p">,</span> <span class="n">fr_vns_rs_e2</span><span class="p">))</span>
+<span class="n">dict_ml_fs_e2</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">ml_fs_indices</span><span class="p">,</span> <span class="n">fr_ml_fs_e2</span><span class="p">))</span>
+<span class="n">dict_vns_fs_e2</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">vns_fs_indices</span><span class="p">,</span> <span class="n">fr_vns_fs_e2</span><span class="p">))</span>
+
+<span class="c1"># Run Tests</span>
+<span class="n">p_rs_e1</span> <span class="o">=</span> <span class="n">run_hierarchical_bootstrap</span><span class="p">(</span><span class="n">ml_rs_anim</span><span class="p">,</span> <span class="n">ml_rs_pool</span><span class="p">,</span> <span class="n">ml_rs_n</span><span class="p">,</span> <span class="n">dict_ml_rs_e1</span><span class="p">,</span>
+                                     <span class="n">vns_rs_anim</span><span class="p">,</span> <span class="n">vns_rs_pool</span><span class="p">,</span> <span class="n">vns_rs_n</span><span class="p">,</span> <span class="n">dict_vns_rs_e1</span><span class="p">)</span>
+
+<span class="n">p_fs_e1</span> <span class="o">=</span> <span class="n">run_hierarchical_bootstrap</span><span class="p">(</span><span class="n">ml_fs_anim</span><span class="p">,</span> <span class="n">ml_fs_pool</span><span class="p">,</span> <span class="n">ml_fs_n</span><span class="p">,</span> <span class="n">dict_ml_fs_e1</span><span class="p">,</span>
+                                     <span class="n">vns_fs_anim</span><span class="p">,</span> <span class="n">vns_fs_pool</span><span class="p">,</span> <span class="n">vns_fs_n</span><span class="p">,</span> <span class="n">dict_vns_fs_e1</span><span class="p">)</span>
+
+<span class="n">p_rs_e2</span> <span class="o">=</span> <span class="n">run_hierarchical_bootstrap</span><span class="p">(</span><span class="n">ml_rs_anim</span><span class="p">,</span> <span class="n">ml_rs_pool</span><span class="p">,</span> <span class="n">ml_rs_n</span><span class="p">,</span> <span class="n">dict_ml_rs_e2</span><span class="p">,</span>
+                                     <span class="n">vns_rs_anim</span><span class="p">,</span> <span class="n">vns_rs_pool</span><span class="p">,</span> <span class="n">vns_rs_n</span><span class="p">,</span> <span class="n">dict_vns_rs_e2</span><span class="p">)</span>
+
+<span class="n">p_fs_e2</span> <span class="o">=</span> <span class="n">run_hierarchical_bootstrap</span><span class="p">(</span><span class="n">ml_fs_anim</span><span class="p">,</span> <span class="n">ml_fs_pool</span><span class="p">,</span> <span class="n">ml_fs_n</span><span class="p">,</span> <span class="n">dict_ml_fs_e2</span><span class="p">,</span>
+                                     <span class="n">vns_fs_anim</span><span class="p">,</span> <span class="n">vns_fs_pool</span><span class="p">,</span> <span class="n">vns_fs_n</span><span class="p">,</span> <span class="n">dict_vns_fs_e2</span><span class="p">)</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># 3. PRINT DESCRIPTIVE STATISTICS FOR TABLE</span>
+<span class="c1"># =============================================================================</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">--- Descriptive Statistics &amp; Hierarchical Results ---&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;RS NEURONS - EARLY (0-10 min):&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Motor Learning: n=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ml_rs_anim</span><span class="p">)</span><span class="si">}</span><span class="s2"> mice (</span><span class="si">{</span><span class="n">ml_rs_n</span><span class="si">}</span><span class="s2"> neurons) | Median=</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">fr_ml_rs_e1</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> Hz, IQR=</span><span class="si">{</span><span class="n">stats</span><span class="o">.</span><span class="n">iqr</span><span class="p">(</span><span class="n">fr_ml_rs_e1</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Paired VNS:     n=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">vns_rs_anim</span><span class="p">)</span><span class="si">}</span><span class="s2"> mice (</span><span class="si">{</span><span class="n">vns_rs_n</span><span class="si">}</span><span class="s2"> neurons) | Median=</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">fr_vns_rs_e1</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> Hz, IQR=</span><span class="si">{</span><span class="n">stats</span><span class="o">.</span><span class="n">iqr</span><span class="p">(</span><span class="n">fr_vns_rs_e1</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  &gt;&gt; Hierarchical Bootstrap p-value: </span><span class="si">{</span><span class="n">p_rs_e1</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;FS NEURONS - EARLY (0-10 min):&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Motor Learning: n=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ml_fs_anim</span><span class="p">)</span><span class="si">}</span><span class="s2"> mice (</span><span class="si">{</span><span class="n">ml_fs_n</span><span class="si">}</span><span class="s2"> neurons) | Median=</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">fr_ml_fs_e1</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> Hz, IQR=</span><span class="si">{</span><span class="n">stats</span><span class="o">.</span><span class="n">iqr</span><span class="p">(</span><span class="n">fr_ml_fs_e1</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Paired VNS:     n=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">vns_fs_anim</span><span class="p">)</span><span class="si">}</span><span class="s2"> mice (</span><span class="si">{</span><span class="n">vns_fs_n</span><span class="si">}</span><span class="s2"> neurons) | Median=</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">fr_vns_fs_e1</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> Hz, IQR=</span><span class="si">{</span><span class="n">stats</span><span class="o">.</span><span class="n">iqr</span><span class="p">(</span><span class="n">fr_vns_fs_e1</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  &gt;&gt; Hierarchical Bootstrap p-value: </span><span class="si">{</span><span class="n">p_fs_e1</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;RS NEURONS - LATE (50-60 min):&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Motor Learning: n=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ml_rs_anim</span><span class="p">)</span><span class="si">}</span><span class="s2"> mice (</span><span class="si">{</span><span class="n">ml_rs_n</span><span class="si">}</span><span class="s2"> neurons) | Median=</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">fr_ml_rs_e2</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> Hz, IQR=</span><span class="si">{</span><span class="n">stats</span><span class="o">.</span><span class="n">iqr</span><span class="p">(</span><span class="n">fr_ml_rs_e2</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Paired VNS:     n=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">vns_rs_anim</span><span class="p">)</span><span class="si">}</span><span class="s2"> mice (</span><span class="si">{</span><span class="n">vns_rs_n</span><span class="si">}</span><span class="s2"> neurons) | Median=</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">fr_vns_rs_e2</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> Hz, IQR=</span><span class="si">{</span><span class="n">stats</span><span class="o">.</span><span class="n">iqr</span><span class="p">(</span><span class="n">fr_vns_rs_e2</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  &gt;&gt; Hierarchical Bootstrap p-value: </span><span class="si">{</span><span class="n">p_rs_e2</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;FS NEURONS - LATE (50-60 min):&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Motor Learning: n=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ml_fs_anim</span><span class="p">)</span><span class="si">}</span><span class="s2"> mice (</span><span class="si">{</span><span class="n">ml_fs_n</span><span class="si">}</span><span class="s2"> neurons) | Median=</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">fr_ml_fs_e2</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> Hz, IQR=</span><span class="si">{</span><span class="n">stats</span><span class="o">.</span><span class="n">iqr</span><span class="p">(</span><span class="n">fr_ml_fs_e2</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Paired VNS:     n=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">vns_fs_anim</span><span class="p">)</span><span class="si">}</span><span class="s2"> mice (</span><span class="si">{</span><span class="n">vns_fs_n</span><span class="si">}</span><span class="s2"> neurons) | Median=</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">fr_vns_fs_e2</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> Hz, IQR=</span><span class="si">{</span><span class="n">stats</span><span class="o">.</span><span class="n">iqr</span><span class="p">(</span><span class="n">fr_vns_fs_e2</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  &gt;&gt; Hierarchical Bootstrap p-value: </span><span class="si">{</span><span class="n">p_fs_e2</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;---------------------------------------------------</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># 4. PLOTTING FUNCTIONS</span>
 <span class="c1"># =============================================================================</span>
 <span class="k">def</span> <span class="nf">plot_manual_split_violin</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">data_left</span><span class="p">,</span> <span class="n">data_right</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">palette</span><span class="p">):</span>
     <span class="n">data_left</span><span class="p">,</span> <span class="n">data_right</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data_left</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data_right</span><span class="p">)</span>
@@ -1014,16 +1375,11 @@ Interval 4: 2700s - 2880s  (45.0 - 48.0 min) | Duration: 180s
             <span class="n">xmax</span> <span class="o">=</span> <span class="n">position</span> <span class="o">+</span> <span class="n">shape</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">val</span><span class="p">,</span> <span class="n">xmin</span><span class="o">=</span><span class="n">position</span><span class="p">,</span> <span class="n">xmax</span><span class="o">=</span><span class="n">xmax</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">palette</span><span class="p">[</span><span class="s1">&#39;pairedVNS&#39;</span><span class="p">],</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">add_sig_stars</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">data1</span><span class="p">,</span> <span class="n">data2</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">add_sig_stars</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">p_value</span><span class="p">,</span> <span class="n">data1</span><span class="p">,</span> <span class="n">data2</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Performs Mann-Whitney U test and adds significance stars.</span>
-<span class="sd">    Prints detailed statistics with the provided label.</span>
+<span class="sd">    Adds significance stars based on the pre-calculated hierarchical p-value.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">data2</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span> <span class="k">return</span>
-    <span class="n">_</span><span class="p">,</span> <span class="n">p_value</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">mannwhitneyu</span><span class="p">(</span><span class="n">data1</span><span class="p">,</span> <span class="n">data2</span><span class="p">,</span> <span class="n">nan_policy</span><span class="o">=</span><span class="s1">&#39;omit&#39;</span><span class="p">)</span>
-    
-    <span class="c1"># Detailed Printout</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">] Mann-Whitney U p-value: </span><span class="si">{</span><span class="n">p_value</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     
     <span class="k">if</span> <span class="n">p_value</span> <span class="o">&lt;</span> <span class="mf">0.05</span><span class="p">:</span>
         <span class="n">y_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">data1</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data1</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span> 
@@ -1036,7 +1392,7 @@ Interval 4: 2700s - 2880s  (45.0 - 48.0 min) | Duration: 180s
 
 
 <span class="c1"># =============================================================================</span>
-<span class="c1"># 3. MAIN PLOTTING</span>
+<span class="c1"># 5. MAIN PLOTTING</span>
 <span class="c1"># =============================================================================</span>
 <span class="n">npl</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">font</span><span class="o">=</span><span class="s1">&#39;Arial&#39;</span><span class="p">,</span> <span class="n">font_scale</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">,</span>
           <span class="n">rc</span><span class="o">=</span><span class="p">({</span><span class="s1">&#39;figure.figsize&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="s1">&#39;font.size&#39;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="s1">&#39;axes.labelsize&#39;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
@@ -1049,30 +1405,26 @@ Interval 4: 2700s - 2880s  (45.0 - 48.0 min) | Duration: 180s
 <span class="n">my_pal_rs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;motorlearning&quot;</span><span class="p">:</span> <span class="s2">&quot;#cedcdc&quot;</span><span class="p">,</span> <span class="s2">&quot;pairedVNS&quot;</span><span class="p">:</span> <span class="s2">&quot;#66b2ff&quot;</span><span class="p">}</span>
 <span class="n">my_pal_fs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;motorlearning&quot;</span><span class="p">:</span> <span class="s2">&quot;#5f7575&quot;</span><span class="p">,</span> <span class="s2">&quot;pairedVNS&quot;</span><span class="p">:</span> <span class="s2">&quot;#004080&quot;</span><span class="p">}</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--- Statistical Results by Epoch ---&quot;</span><span class="p">)</span>
-
-<span class="c1"># 1. RS Early (0-20 min) -&gt; Axes[0]</span>
+<span class="c1"># 1. RS Early (0-10 min) -&gt; Axes[0]</span>
 <span class="n">plot_manual_split_violin</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fr_ml_rs_e1</span><span class="p">,</span> <span class="n">fr_vns_rs_e1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">my_pal_rs</span><span class="p">)</span>
-<span class="n">add_sig_stars</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fr_ml_rs_e1</span><span class="p">,</span> <span class="n">fr_vns_rs_e1</span><span class="p">,</span> <span class="s2">&quot;RS Neurons (Early: 0-20 min)&quot;</span><span class="p">)</span>
+<span class="n">add_sig_stars</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p_rs_e1</span><span class="p">,</span> <span class="n">fr_ml_rs_e1</span><span class="p">,</span> <span class="n">fr_vns_rs_e1</span><span class="p">)</span>
 <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;firing rate (Hz)&quot;</span><span class="p">)</span> 
-<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;RS</span><span class="se">\n</span><span class="s1">0-20 min&#39;</span><span class="p">)</span> 
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;RS</span><span class="se">\n</span><span class="s1">0-10 min&#39;</span><span class="p">)</span> 
 
-<span class="c1"># 2. FS Early (0-20 min) -&gt; Axes[1]</span>
+<span class="c1"># 2. FS Early (0-10 min) -&gt; Axes[1]</span>
 <span class="n">plot_manual_split_violin</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">fr_ml_fs_e1</span><span class="p">,</span> <span class="n">fr_vns_fs_e1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">my_pal_fs</span><span class="p">)</span>
-<span class="n">add_sig_stars</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">fr_ml_fs_e1</span><span class="p">,</span> <span class="n">fr_vns_fs_e1</span><span class="p">,</span> <span class="s2">&quot;FS Neurons (Early: 0-20 min)&quot;</span><span class="p">)</span>
-<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;FS</span><span class="se">\n</span><span class="s1">0-20 min&#39;</span><span class="p">)</span> 
+<span class="n">add_sig_stars</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">p_fs_e1</span><span class="p">,</span> <span class="n">fr_ml_fs_e1</span><span class="p">,</span> <span class="n">fr_vns_fs_e1</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;FS</span><span class="se">\n</span><span class="s1">0-10 min&#39;</span><span class="p">)</span> 
 
-<span class="c1"># 3. RS Late (40-60 min) -&gt; Axes[2]</span>
+<span class="c1"># 3. RS Late (50-60 min) -&gt; Axes[2]</span>
 <span class="n">plot_manual_split_violin</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">fr_ml_rs_e2</span><span class="p">,</span> <span class="n">fr_vns_rs_e2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">my_pal_rs</span><span class="p">)</span>
-<span class="n">add_sig_stars</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">fr_ml_rs_e2</span><span class="p">,</span> <span class="n">fr_vns_rs_e2</span><span class="p">,</span> <span class="s2">&quot;RS Neurons (Late: 40-60 min)&quot;</span><span class="p">)</span>
-<span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;RS</span><span class="se">\n</span><span class="s1">40-60 min&#39;</span><span class="p">)</span> 
+<span class="n">add_sig_stars</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">p_rs_e2</span><span class="p">,</span> <span class="n">fr_ml_rs_e2</span><span class="p">,</span> <span class="n">fr_vns_rs_e2</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;RS</span><span class="se">\n</span><span class="s1">50-60 min&#39;</span><span class="p">)</span> 
 
-<span class="c1"># 4. FS Late (40-60 min) -&gt; Axes[3]</span>
+<span class="c1"># 4. FS Late (50-60 min) -&gt; Axes[3]</span>
 <span class="n">plot_manual_split_violin</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">fr_ml_fs_e2</span><span class="p">,</span> <span class="n">fr_vns_fs_e2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">my_pal_fs</span><span class="p">)</span>
-<span class="n">add_sig_stars</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">fr_ml_fs_e2</span><span class="p">,</span> <span class="n">fr_vns_fs_e2</span><span class="p">,</span> <span class="s2">&quot;FS Neurons (Late: 40-60 min)&quot;</span><span class="p">)</span>
-<span class="n">axes</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;FS</span><span class="se">\n</span><span class="s1">40-60 min&#39;</span><span class="p">)</span> 
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;------------------------------------&quot;</span><span class="p">)</span>
+<span class="n">add_sig_stars</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">p_fs_e2</span><span class="p">,</span> <span class="n">fr_ml_fs_e2</span><span class="p">,</span> <span class="n">fr_vns_fs_e2</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;FS</span><span class="se">\n</span><span class="s1">50-60 min&#39;</span><span class="p">)</span> 
 
 <span class="c1"># --- DYNAMIC Y-LIMIT ---</span>
 <span class="n">all_data_arrays</span> <span class="o">=</span> <span class="p">[</span>
@@ -1099,30 +1451,56 @@ Interval 4: 2700s - 2880s  (45.0 - 48.0 min) | Duration: 180s
     <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">labelleft</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;meanFiringRatesViolin_Epochs.pdf&quot;</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;pdf&#39;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
-</details>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>--- Statistical Results by Epoch ---
-[RS Neurons (Early: 0-20 min)] Mann-Whitney U p-value: 0.1665
-[FS Neurons (Early: 0-20 min)] Mann-Whitney U p-value: 0.0338
-[RS Neurons (Late: 40-60 min)] Mann-Whitney U p-value: 0.0000
-[FS Neurons (Late: 40-60 min)] Mann-Whitney U p-value: 0.9515
-------------------------------------
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>--- Running Hierarchical Bootstraps (N=10,000) ---
 </pre></div>
 </div>
-<img alt="_images/f70e8be68401d2e950d9f4aa921edbbf728c815fea9eaf949ea08c30d69d9cdc.png" src="_images/f70e8be68401d2e950d9f4aa921edbbf728c815fea9eaf949ea08c30d69d9cdc.png" />
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|████████████████████████████████████████████████████████████████████████████████████████| 10000/10000 [00:20&lt;00:00, 492.03it/s]
+100%|████████████████████████████████████████████████████████████████████████████████████████| 10000/10000 [00:14&lt;00:00, 704.49it/s]
+100%|████████████████████████████████████████████████████████████████████████████████████████| 10000/10000 [00:20&lt;00:00, 497.02it/s]
+100%|████████████████████████████████████████████████████████████████████████████████████████| 10000/10000 [00:14&lt;00:00, 703.48it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>--- Descriptive Statistics &amp; Hierarchical Results ---
+RS NEURONS - EARLY (0-10 min):
+  Motor Learning: n=5 mice (197 neurons) | Median=1.0133 Hz, IQR=2.9883
+  Paired VNS:     n=4 mice (102 neurons) | Median=0.7767 Hz, IQR=2.5329
+  &gt;&gt; Hierarchical Bootstrap p-value: 0.1926
+
+FS NEURONS - EARLY (0-10 min):
+  Motor Learning: n=5 mice (131 neurons) | Median=1.5917 Hz, IQR=3.7217
+  Paired VNS:     n=4 mice (77 neurons) | Median=3.0267 Hz, IQR=5.8433
+  &gt;&gt; Hierarchical Bootstrap p-value: 0.0472
+
+RS NEURONS - LATE (50-60 min):
+  Motor Learning: n=5 mice (197 neurons) | Median=1.3417 Hz, IQR=3.0217
+  Paired VNS:     n=4 mice (102 neurons) | Median=0.6033 Hz, IQR=1.8254
+  &gt;&gt; Hierarchical Bootstrap p-value: 0.0028
+
+FS NEURONS - LATE (50-60 min):
+  Motor Learning: n=5 mice (131 neurons) | Median=0.8467 Hz, IQR=2.6992
+  Paired VNS:     n=4 mice (77 neurons) | Median=0.8967 Hz, IQR=3.4467
+  &gt;&gt; Hierarchical Bootstrap p-value: 0.8804
+
+---------------------------------------------------
+</pre></div>
+</div>
+<img alt="_images/ee60af53e5228a1ca0f7872d4ffe4583ad91f4255403db3a04296d5a72646847.png" src="_images/ee60af53e5228a1ca0f7872d4ffe4583ad91f4255403db3a04296d5a72646847.png" />
 </div>
 </div>
 <div class="alert alert-block alert-success">
     <b>Statistical Insight: The "Inhibition-First" Sequence</b><br>
-    The epoch analysis confirms a specific temporal hand-off:
+    The 10-minute epoch analysis confirms a specific temporal hand-off in circuit dynamics:
     <ul>
-        <li><b>Early Phase (0-20 min):</b> <b>FS neurons</b> are significantly modulated (<i>p=0.0338</i>), while RS neurons remain indistinguishable from controls. This supports the hypothesis that VNS engages an initial "inhibitory brake."</li>
-        <li><b>Late Phase (40-60 min):</b> The dynamic flips. FS modulation fades (<i>p=0.95</i>), while <b>RS neurons</b> show a highly significant divergence (<i>p<0.0001</i>), reflecting the long-term stabilization of excitatory output.</li>
+        <li><b>Early Phase (0-10 min):</b> Hierarchical analysis reveals that <b>FS neurons</b> are significantly up-modulated (<i>p=0.0472</i>), while RS neurons remain indistinguishable from controls (<i>p=0.1926</i>). This supports the hypothesis that Paired VNS initially engages an "inhibitory brake" upon session onset.</li>
+        <li><b>Late Phase (50-60 min):</b> The dynamic flips. FS modulation returns to baseline levels (<i>p=0.8804</i>), while <b>RS neurons</b> exhibit a highly significant divergence (<i>p=0.0028</i>), reflecting a sustained, long-term stabilization of excitatory output.</li>
     </ul>
+    <br>
     Given that VNS is delivered phasically upon successful reaches, we hypothesized that this early inhibitory recruitment is directly locked to the stimulation events. To test this, we next align firing rate trajectories to <b>individual success events</b> to visualize the immediate, acute modulation.
 </div></section>
 <section id="panel-f-success-aligned-trajectories">
